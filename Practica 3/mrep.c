@@ -4,6 +4,7 @@
 #include <malloc.h>
 #include <sys/types.h>
 #include <unistd.h>
+//ss
 #define limpia() printf("\033[H\033[J")
 //
 //struct
