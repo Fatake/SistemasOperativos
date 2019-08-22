@@ -2,47 +2,58 @@
 #include <malloc.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #define limpia() printf("\033[H\033[J")
 //
 //struct
 //
 typedef struct nodo{
-	char dato[50];
+	char dato[350];
 	struct nodo *sig;
 }nodo;
 //
 //funciones
 //
-char *gets(char *s);
-int agrega(nodo **inicio,nodo **final);
 nodo *nele();
-int mostrar(nodo *inicio);
+char *gets(char *s);
+void pausa();
+void procesosActuales();
 void borrar(nodo **inicio,nodo **final);
+void agregar(nodo **inicio,nodo **final,char * dato);
+int mostrar(nodo *inicio);
+int leerLinea(nodo **inicio,nodo **final,char * nombreArchivo);
 int menu();
 //Main
 int main(int argc, char **argv){
 	nodo *inicio,*final;
-	int m=1,f=0,c;
+	char dato[100];
+	int m=1;
 	inicio = final = NULL;
 	do{
 		limpia();
 		m = menu();
 		switch(m){
-			case 1:
-				do{
-					limpia();
-					f = agrega(&inicio,&final);
-				}while(f != 0);
+			case 1: //Agregar
+				limpia();
+				printf("\n       Agregar:\n");
+				printf("\n<---------------------->\n Inserte un Dato\n->");
+				//(char*)malloc(sizeof(char)*4);
+				gets(dato);
+				gets(dato);
+				agregar(&inicio,&final,dato);
 				break;
-			case 2:
+			case 2: //Borrar
 				borrar(&inicio,&final);
+				pausa();
 				break;
-			case 3:
+			case 3: //Mostrar
 				limpia();
 				mostrar(inicio);
-				printf("\n<---------------------->\n");
-				printf("Continuar...");
-				scanf("%d",&c);
+				pausa();
+				break;
+			case 4: //ps -aux
+				limpia();
+				procesosActuales(&inicio,&final);
 				break;
 			default:
 				if(m!=0)
@@ -58,12 +69,13 @@ int main(int argc, char **argv){
 //Menu
 int menu(){
 	int seleccionar = 1;
-	printf("Programa de Listas Ligadas\n");
-	printf("<----------------------->\n");
-	printf("1)Agregar\n");
-	printf("2)Eliminar\n");
-	printf("3)Mostrar\n");
-	printf("<----------------------->\n");
+	printf("Programa de Procesos Simulados\n");
+	printf("\n<----------------------->\n\n");
+	printf("1) Agregar\n");
+	printf("2) Eliminar\n");
+	printf("3) Mostrar\n");
+	printf("4) Procesos\n");
+	printf("\n<----------------------->\n");
 	printf("0)Salir\n->");
 	scanf("%d",&seleccionar);
 	return seleccionar;
@@ -73,18 +85,15 @@ nodo *nele(){
 	return (nodo *)malloc(sizeof(nodo));
 }
 //Agregar
-int agrega(nodo **inicio,nodo **final){
+void agregar(nodo **inicio,nodo **final, char * dato){
 	nodo *nuevo;
 	nuevo = nele();
 	if(nuevo==NULL){
 		printf("No hay memoria disponible!\n");
 		exit(1);
 	}else{
-		printf("\n       Agregar:\n");
-		printf("\n<---------------------->\n");
-		printf("\n->");
-		gets(nuevo->dato);
-		gets(nuevo->dato);
+		//nuevo->dato = (char*)malloc(sizeof(dato));
+		strcpy(nuevo->dato, dato);
 		nuevo->sig = NULL;
 		if(*inicio == NULL){
 			*inicio = nuevo;
@@ -94,7 +103,6 @@ int agrega(nodo **inicio,nodo **final){
 			*final=nuevo;
 		}
 	}
-	return 0;
 }
 //Borrar
 void borrar(nodo **inicio,nodo **final){
@@ -163,8 +171,7 @@ int mostrar(nodo *inicio){
 	printf("	Datos:\n");
 	printf("\n<---------------------->\n");
 	while(aux != NULL){
-		printf("numero: %d \n Dato: %s",i+1,aux->dato);
-		printf("\n<---------------------->\n");
+		printf("Proceso: %d \n %s",i+1,aux->dato);
 		aux = aux->sig;
 		i++;
 	}
@@ -172,3 +179,55 @@ int mostrar(nodo *inicio){
 		printf("\nNo hay datos!!\n");
 	return i;
 }
+//
+void pausa(){
+	printf("\n<---------------------->\n");
+	printf("Continuar...");
+	getchar();
+	getchar();
+}
+//
+//Leer lineas
+//
+int leerLinea(nodo **inicio,nodo **final,char * nombreArchivo){
+	FILE * fp;//Apuntador Archivo
+	char * line = NULL;//Line a leer
+	size_t len = 0;
+	ssize_t read;
+	int contadorPaginas = 1;
+
+	fp = fopen(nombreArchivo, "r");
+	if (fp == NULL)
+		exit(EXIT_FAILURE);
+
+	while ((read = getline(&line, &len, fp)) != -1) {
+		//printf("Tamanio: %zu \n", read);
+		//printf("%s\n\n", line);
+		if(contadorPaginas != 1)
+			agregar(inicio,final,line);
+		contadorPaginas ++;
+	}
+
+	fclose(fp);
+	if (line)
+		free(line);
+
+	return contadorPaginas;
+}
+//
+//Ejecuta ps
+//
+void procesosActuales(nodo **inicio,nodo **final){
+	int pid;
+	
+	printf("	Procesos\n");
+	printf("\n<---------------------->\n");
+	system("ps -aux");
+	pid = fork();
+	if(pid == 0)
+		system("ps -aux > ps.txt");
+	else
+		leerLinea(inicio, final, "ps.txt");
+	pausa();
+}
+
