@@ -5,25 +5,33 @@
 #include <unistd.h>
 #define limpia() printf("\033[H\033[J")
 //
-//struct
+//Estrucctura Nodo
 //
 typedef struct nodo{
 	char dato[350];
 	struct nodo *sig;
 }nodo;
 //
-//funciones
+//Prototipos de Funciones
 //
-nodo *nele();
+//Funciones no afectantes al programa
 char *gets(char *s);
 void pausa();
-void procesosActuales();
+int menu();
+//Funciones de lista ligada
 void borrar(nodo **inicio,nodo **final);
 void agregar(nodo **inicio,nodo **final,char * dato);
 int mostrar(nodo *inicio);
+//Funciones de manejo de memoria
+nodo *nele();
+//Funciones de Procesos
+void procesosActuales(nodo **inicio,nodo **final);
+//Funciones que leer archivos
 int leerLinea(nodo **inicio,nodo **final,char * nombreArchivo);
-int menu();
+
+//
 //Main
+//
 int main(int argc, char **argv){
 	nodo *inicio,*final;
 	char dato[100];
@@ -88,7 +96,7 @@ nodo *nele(){
 void agregar(nodo **inicio,nodo **final, char * dato){
 	nodo *nuevo;
 	nuevo = nele();
-	if(nuevo==NULL){
+	if(nuevo == NULL){
 		printf("No hay memoria disponible!\n");
 		exit(1);
 	}else{
@@ -99,14 +107,14 @@ void agregar(nodo **inicio,nodo **final, char * dato){
 			*inicio = nuevo;
 			*final = nuevo;
 		}else{
-			(*final)->sig=nuevo;
-			*final=nuevo;
+			(*final)->sig = nuevo;
+			*final = nuevo;
 		}
 	}
 }
 //Borrar
-void borrar(nodo **inicio,nodo **final){
-	int b=0;
+void borrar(nodo **inicio, nodo **final){
+	int b = 0;
 	char nod[50];
 	nodo *aux1,*aux2,*aux3;
 	limpia();
@@ -121,40 +129,40 @@ void borrar(nodo **inicio,nodo **final){
 		gets(nod);
 		// proceso de eliminacion
 		if(*final == *inicio){//si solo hay uno
-			if(!strcmp((*inicio)->dato,nod)){
-				aux3=*final;
-				*final=*inicio=(*final)->sig;
+			if(!strcmp((*inicio)->dato, nod)){
+				aux3 = *final;
+				*final = *inicio = (*final)->sig;
 				free(aux3);
 				printf("\nCanción eliminada !!\n");
 			}else b=2;
 		}else{
 			if(!strcmp((*inicio)->dato,nod)){//si es el primero
-				aux3=*inicio;
-				*inicio=(*inicio)->sig;
-				aux3->sig=NULL;
+				aux3 = *inicio;
+				*inicio = (*inicio)->sig;
+				aux3->sig = NULL;
 				free(aux3);
 				printf("\nDato borrado !!\n");
 			}else{
-				aux1=(*inicio)->sig;
-				aux2=*inicio;
+				aux1 = (*inicio)->sig;
+				aux2 = *inicio;
 				do{
 					if(!strcmp(aux1->dato,nod)){
 						//si esta en medio
-						aux2->sig=aux1->sig;
-						aux1->sig=NULL;
-						b=1;
+						aux2->sig = aux1->sig;
+						aux1->sig = NULL;
+						b = 1;
 						break;
 					}else{
-						if(aux1->sig==NULL){
-							b=2;
+						if(aux1->sig == NULL){
+							b = 2;
 							break;
 						}else{
-							aux1=aux1->sig;
-							aux2=aux2->sig;
+							aux1 = aux1->sig;
+							aux2 = aux2->sig;
 						}
 					}
 				}while(aux1->sig != NULL );
-				if(b==1){
+				if(b == 1){
 					free(aux1);
 					printf("\nDato Borrado !!\n");
 				} 
