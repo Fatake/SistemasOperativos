@@ -223,11 +223,15 @@ void procesosActuales(nodo **inicio,nodo **final){
 	printf("	Procesos\n");
 	printf("\n<---------------------->\n");
 	system("ps -aux");
+	/*
 	pid = fork();
 	if(pid == 0)
 		system("ps -aux > ps.txt");
 	else
 		leerLinea(inicio, final, "ps.txt");
+	/////////
+	Por agregar
+	*/
 	pausa();
 }
 
