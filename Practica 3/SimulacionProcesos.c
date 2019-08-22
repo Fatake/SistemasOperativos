@@ -14,7 +14,7 @@ typedef struct nodo{
 //
 //Prototipos de Funciones
 //
-//Funciones no afectantes al programa
+//Funciones ordamentales
 char *gets(char *s);
 void pausa();
 int menu();
