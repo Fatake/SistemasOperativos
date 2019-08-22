@@ -239,6 +239,7 @@ void procesosActuales(nodo **inicio,nodo **final){
 		leerLinea(inicio, final, "ps.txt");
 	/////////
 	Por agregar
+
 	*/
 	pausa();
 }
