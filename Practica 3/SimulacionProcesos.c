@@ -226,8 +226,8 @@ int leerLinea(nodo **inicio,nodo **final,char * nombreArchivo){
 //Ejecuta ps
 //
 void procesosActuales(nodo **inicio,nodo **final){
-	int pid;
-	
+	//int pid;
+
 	printf("	Procesos\n");
 	printf("\n<---------------------->\n");
 	system("ps -aux");
