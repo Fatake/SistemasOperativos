@@ -165,7 +165,7 @@ void borrar(nodo **inicio, nodo **final){
 				if(b == 1){
 					free(aux1);
 					printf("\nDato Borrado !!\n");
-				} 
+				}
 			}
 		}
 		if(b==2) printf("\n:(...\n");
@@ -173,7 +173,7 @@ void borrar(nodo **inicio, nodo **final){
 }
 //Mostrar
 int mostrar(nodo *inicio){
-	nodo *aux; 
+	nodo *aux;
 	int i = 0;
 	aux = inicio;
 	printf("	Datos:\n");
@@ -227,20 +227,21 @@ int leerLinea(nodo **inicio,nodo **final,char * nombreArchivo){
 //
 void procesosActuales(nodo **inicio,nodo **final){
 	int pid;
-	
+
 	printf("	Procesos\n");
 	printf("\n<---------------------->\n");
 	system("ps -aux");
-	/*
 	pid = fork();
-	if(pid == 0)
-		system("ps -aux > ps.txt");
-	else
+	if(pid == 0){
+		limpia();
+		printf("Proceso Hijo\n");
+		//system("x-terminal-emulator ");
+		system("mate-terminal --hide-menubar --zoom=0.5 -e \"ps -aux\"");
+		pausa();
+	}else{
+		printf("Proceso Padre\n");
 		leerLinea(inicio, final, "ps.txt");
-	/////////
-	Por agregar
-
-	*/
+	}
 	pausa();
 }
 
