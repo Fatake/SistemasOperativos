@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <malloc.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -24,10 +23,8 @@ void mostrar(PBC **inicio, PBC **final);
 int buscar(PBC **inicio, PBC nodo);
 //Funciones de manejo de memoria
 PBC *new();
-//Funciones de Procesos
-void procesosActuales(PBC **inicio,PBC **final);
 //Funciones que leer archivos
-int leerArchivo(PBC **inicio,PBC **final,char * nombreArchivo);
+int leerArchivo(PBC **inicio, PBC **final, char * nombreArchivo);
 //
 //Main
 //
@@ -133,6 +130,9 @@ void mostrar(PBC **inicio, PBC **final){
 	PBC *aux;
 	int i = 0;
 	aux = (*inicio);
+
+	leerArchivo(inicio, final, "ps.txt");
+
 	while(aux != NULL){
 		printf("Proceso: %d \n %s",i+1,aux->PID);
 		aux = aux->sig;
@@ -151,11 +151,11 @@ void pausa(){
 /*
  * Lee Archivo
  */
-int leeArchvio(PBC **inicio,PBC **final,char * nombreArchivo){
+int leerArchivo(PBC **inicio,PBC **final,char * nombreArchivo){
 	FILE * fp;//Apuntador Archivo
-	char * line = NULL;//Line a leer
 	size_t len = 0;
 	ssize_t read;
+	char * line = NULL;//Line a leer
 	int contadorPaginas = 1;
 
 	fp = fopen(nombreArchivo, "r");
@@ -168,10 +168,38 @@ int leeArchvio(PBC **inicio,PBC **final,char * nombreArchivo){
 			/*
 			 * La primera linea del archivo ps.txt tiene solo las
 			 * cabezeras, por eso no leemos esa linea
-			 */
-			//PBC *nuevo;
-			//nuevo = new();
-			//agregar(inicio,final,nuevo);
+
+			PBC *nuevo;
+			nuevo = new();
+			//Reservar memoria de cada char
+			nuevo->user = (char*)malloc (sizeof(Caracter leido del usuario));
+			nuevo->PID = (char*)malloc (sizeof());
+			nuevo->CPU = (char*)malloc (sizeof());
+			nuevo->MEM = (char*)malloc (sizeof());
+			nuevo->VSZ = (char*)malloc (sizeof());
+			nuevo->RSS = (char*)malloc (sizeof());
+			nuevo->TTY = (char*)malloc (sizeof());
+			nuevo->STAT = (char*)malloc (sizeof());
+			nuevo->START = (char*)malloc (sizeof());
+			nuevo->TIME = (char*)malloc (sizeof());
+			nuevo->COMMAND = (char*)malloc (sizeof());
+
+			//Copiar los datos de la linea
+			strcpy(nuevo->user, user);
+			strcpy(nuevo->PID, PID);
+			strcpy(nuevo->CPU, CPU);
+			strcpy(nuevo->MEM, MEM);
+			strcpy(nuevo->VSZ, VSZ);
+			strcpy(nuevo->RSS, RSS);
+			strcpy(nuevo->TTY, TTY);
+			strcpy(nuevo->STAT, STAT);
+			strcpy(nuevo->START, START);
+			strcpy(nuevo->TIME, TIME);
+			strcpy(nuevo->COMMAND, COMMAND);
+
+			nuevo->sig = NULL;
+			agregar(inicio,final,nuevo);
+			*/
 		}
 		contadorPaginas ++;
 	}
