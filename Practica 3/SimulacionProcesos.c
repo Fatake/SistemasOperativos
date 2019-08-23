@@ -5,148 +5,105 @@
 #include <unistd.h>
 #define limpia() printf("\033[H\033[J")
 //
-//Estrucctura Nodo
+//Estrucctura PBC
 //
-typedef struct nodo{
-	char dato[350];
-	struct nodo *sig;
-}nodo;
+typedef struct PBC{
+	char *user,*PID, *CPU, *MEM, *VSZ, *RSS, *TTY, *STAT, *START, *TIME, *COMMAND;
+	struct PBC *sig;
+}PBC;
 //
 //Prototipos de Funciones
 //
 //Funciones ordamentales
 char *gets(char *s);
 void pausa();
-int menu();
 //Funciones de lista ligada
-void borrar(nodo **inicio,nodo **final);
-void agregar(nodo **inicio,nodo **final,char * dato);
-int mostrar(nodo *inicio);
+int borrar(PBC **inicio, PBC **final, PBC nodo);
+int agregar(PBC **inicio, PBC **final, PBC nodo);
+void mostrar(PBC **inicio, PBC **final);
+int buscar(PBC **inicio, PBC nodo);
 //Funciones de manejo de memoria
-nodo *nele();
+PBC *new();
 //Funciones de Procesos
-void procesosActuales(nodo **inicio,nodo **final);
+void procesosActuales(PBC **inicio,PBC **final);
 //Funciones que leer archivos
-int leerLinea(nodo **inicio,nodo **final,char * nombreArchivo);
-
+int leerArchivo(PBC **inicio,PBC **final,char * nombreArchivo);
 //
 //Main
 //
 int main(int argc, char **argv){
-	nodo *inicio,*final;
-	char dato[100];
-	int m=1;
+	int pid;//Control de procesos
+	PBC *inicio,*final;
 	inicio = final = NULL;
-	do{
-		limpia();
-		m = menu();
-		switch(m){
-			case 1: //Agregar
-				limpia();
-				printf("\n       Agregar:\n");
-				printf("\n<---------------------->\n Inserte un Dato\n->");
-				//(char*)malloc(sizeof(char)*4);
-				gets(dato);
-				gets(dato);
-				agregar(&inicio,&final,dato);
-				break;
-			case 2: //Borrar
-				borrar(&inicio,&final);
-				pausa();
-				break;
-			case 3: //Mostrar
-				limpia();
-				mostrar(inicio);
-				pausa();
-				break;
-			case 4: //ps -aux
-				limpia();
-				procesosActuales(&inicio,&final);
-				break;
-			default:
-				if(m!=0)
-					printf("\n Opcion no disponible \n");
-				else
-					limpia();
-					printf("Saliendo...\n");
-				break;
-		}
-	}while(m!=0);
+
+	printf("\tProcesos:\n");
+	printf("\n<------------------------>\n");
+	if((pid = fork()) == 0){
+		//while( time() % 5 == 0)
+		printf("Prceso hijo instrucciones ps -aux > ps.txt");
+	}else{
+		printf("Ejeccucion normal del programa\n");
+		mostrar(&inicio, &final);
+	/*
+	 * Contador de Tiempo quer ejecute mostrar cada 5 s
+	 * while(time() % 5 == 0)
+	 * 	ejecuta mostar()
+	 */
+	}
 	return 0;
 }
-//Menu
-int menu(){
-	int seleccionar = 1;
-	printf("Programa de Procesos Simulados\n");
-	printf("\n<----------------------->\n\n");
-	printf("1) Agregar\n");
-	printf("2) Eliminar\n");
-	printf("3) Mostrar\n");
-	printf("4) Procesos\n");
-	printf("\n<----------------------->\n");
-	printf("0)Salir\n->");
-	scanf("%d",&seleccionar);
-	return seleccionar;
-}
 //recerva memoria
-nodo *nele(){
-	return (nodo *)malloc(sizeof(nodo));
+PBC *new(){
+	return (PBC *)malloc(sizeof(PBC));
 }
-//Agregar
-void agregar(nodo **inicio,nodo **final, char * dato){
-	nodo *nuevo;
-	nuevo = nele();
-	if(nuevo == NULL){
-		printf("No hay memoria disponible!\n");
-		exit(1);
-	}else{
-		//nuevo->dato = (char*)malloc(sizeof(dato));
-		strcpy(nuevo->dato, dato);
-		nuevo->sig = NULL;
-		if(*inicio == NULL){
-			*inicio = nuevo;
-			*final = nuevo;
-		}else{
-			(*final)->sig = nuevo;
-			*final = nuevo;
-		}
-	}
-}
-//Borrar
-void borrar(nodo **inicio, nodo **final){
-	int b = 0;
-	char nod[50];
-	nodo *aux1,*aux2,*aux3;
-	limpia();
-	printf("	Borrar \n");
+/**
+ * Agregar
+ * Retorna:
+ * 1 si lo agrego
+ * 0 si no lo agrego
+ */
+int agregar(PBC **inicio, PBC **final, PBC nodo){
+	//Preguntar si el nodo ya existe si no entondes lo de abajo
 	if(*inicio == NULL){
-		printf("\n\nNo hay lista\n\n");
+		*inicio = &nodo;
+		*final = &nodo;
 	}else{
-		mostrar(*inicio);
-		printf("\n<---------------------->\n");
-		printf("Ingrese dato a borrar: \n->");
-		gets(nod);
-		gets(nod);
+		(*final)->sig = &nodo;
+		*final = &nodo;
+	}
+	return 1;
+}
+/*
+ * Borrar
+ * Retorna
+ * 1 si se borro
+ * 0 si no se borro
+ */
+int borrar(PBC **inicio, PBC **final, PBC nodo){
+	int b = 0;//Parte de los casos
+	PBC *aux1,*aux2,*aux3;
+	if(*inicio == NULL){
+		return 0;// No hay elementos
+	}else{
 		// proceso de eliminacion
 		if(*final == *inicio){//si solo hay uno
-			if(!strcmp((*inicio)->dato, nod)){
+			if((*inicio) == &nodo){
 				aux3 = *final;
 				*final = *inicio = (*final)->sig;
 				free(aux3);
-				printf("\nCanción eliminada !!\n");
-			}else b=2;
+			}else
+				b = 2;
 		}else{
-			if(!strcmp((*inicio)->dato,nod)){//si es el primero
+			if((*inicio) == &nodo){//si es el primero
 				aux3 = *inicio;
 				*inicio = (*inicio)->sig;
 				aux3->sig = NULL;
 				free(aux3);
-				printf("\nDato borrado !!\n");
 			}else{
 				aux1 = (*inicio)->sig;
 				aux2 = *inicio;
 				do{
-					if(!strcmp(aux1->dato,nod)){
+					if(aux1 == &nodo){
 						//si esta en medio
 						aux2->sig = aux1->sig;
 						aux1->sig = NULL;
@@ -162,30 +119,27 @@ void borrar(nodo **inicio, nodo **final){
 						}
 					}
 				}while(aux1->sig != NULL );
-				if(b == 1){
+				if(b == 1)
 					free(aux1);
-					printf("\nDato Borrado !!\n");
-				}
 			}
 		}
-		if(b==2) printf("\n:(...\n");
+		if(b==2)
+			return 0;
 	}
+	return 1;
 }
 //Mostrar
-int mostrar(nodo *inicio){
-	nodo *aux;
+void mostrar(PBC **inicio, PBC **final){
+	PBC *aux;
 	int i = 0;
-	aux = inicio;
-	printf("	Datos:\n");
-	printf("\n<---------------------->\n");
+	aux = (*inicio);
 	while(aux != NULL){
-		printf("Proceso: %d \n %s",i+1,aux->dato);
+		printf("Proceso: %d \n %s",i+1,aux->PID);
 		aux = aux->sig;
 		i++;
 	}
 	if(i == 0)
 		printf("\nNo hay datos!!\n");
-	return i;
 }
 //
 void pausa(){
@@ -194,10 +148,10 @@ void pausa(){
 	getchar();
 	getchar();
 }
-//
-//Leer lineas
-//
-int leerLinea(nodo **inicio,nodo **final,char * nombreArchivo){
+/*
+ * Lee Archivo
+ */
+int leeArchvio(PBC **inicio,PBC **final,char * nombreArchivo){
 	FILE * fp;//Apuntador Archivo
 	char * line = NULL;//Line a leer
 	size_t len = 0;
@@ -209,10 +163,16 @@ int leerLinea(nodo **inicio,nodo **final,char * nombreArchivo){
 		exit(EXIT_FAILURE);
 
 	while ((read = getline(&line, &len, fp)) != -1) {
-		//printf("Tamanio: %zu \n", read);
-		//printf("%s\n\n", line);
-		if(contadorPaginas != 1)
-			agregar(inicio,final,line);
+		//Token strktoken
+		if(contadorPaginas != 1){
+			/*
+			 * La primera linea del archivo ps.txt tiene solo las
+			 * cabezeras, por eso no leemos esa linea
+			 */
+			//PBC *nuevo;
+			//nuevo = new();
+			//agregar(inicio,final,nuevo);
+		}
 		contadorPaginas ++;
 	}
 
@@ -222,26 +182,3 @@ int leerLinea(nodo **inicio,nodo **final,char * nombreArchivo){
 
 	return contadorPaginas;
 }
-//
-//Ejecuta ps
-//
-void procesosActuales(nodo **inicio,nodo **final){
-	int pid;
-
-	printf("	Procesos\n");
-	printf("\n<---------------------->\n");
-	system("ps -aux");
-	pid = fork();
-	if(pid == 0){
-		limpia();
-		printf("Proceso Hijo\n");
-		//system("x-terminal-emulator ");
-		system("mate-terminal --hide-menubar --zoom=0.5 -e \"ps -aux\"");
-		pausa();
-	}else{
-		printf("Proceso Padre\n");
-		leerLinea(inicio, final, "ps.txt");
-	}
-	pausa();
-}
-
