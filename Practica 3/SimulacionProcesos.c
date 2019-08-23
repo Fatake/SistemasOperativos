@@ -2,12 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <string.h>
 #define limpia() printf("\033[H\033[J")
 //
 //Estrucctura PBC
 //
 typedef struct PBC{
-	char *user,*PID, *CPU, *MEM, *VSZ, *RSS, *TTY, *STAT, *START, *TIME, *COMMAND;
+	char user[150],PID[150], CPU[150], MEM[150], VSZ[150], RSS[150], TTY[150], STAT[150], START[150], TIME[150], COMMAND[150];
 	struct PBC *sig;
 }PBC;
 //
@@ -17,14 +18,14 @@ typedef struct PBC{
 char *gets(char *s);
 void pausa();
 //Funciones de lista ligada
-int borrar(PBC **inicio, PBC **final, PBC nodo);
-int agregar(PBC **inicio, PBC **final, PBC nodo);
+int borrar(PBC **inicio, PBC **final, PBC *nodo);
+int agregar(PBC **inicio, PBC **final, char *line);
 void mostrar(PBC **inicio, PBC **final);
-int buscar(PBC **inicio, PBC nodo);
+int buscar(PBC **inicio, PBC *nodo);
 //Funciones de manejo de memoria
 PBC *new();
 //Funciones que leer archivos
-int leerArchivo(PBC **inicio, PBC **final, char * nombreArchivo);
+void leerArchivo(PBC **inicio, PBC **final);
 //
 //Main
 //
@@ -37,9 +38,9 @@ int main(int argc, char **argv){
 	printf("\n<------------------------>\n");
 	if((pid = fork()) == 0){
 		//while( time() % 5 == 0)
-		printf("Prceso hijo instrucciones ps -aux > ps.txt");
+		system("ps -aux > ps.txtx");
+		//printf("Prceso hijo instrucciones ps -aux > ps.txt");
 	}else{
-		printf("Ejeccucion normal del programa\n");
 		mostrar(&inicio, &final);
 	/*
 	 * Contador de Tiempo quer ejecute mostrar cada 5 s
@@ -59,14 +60,62 @@ PBC *new(){
  * 1 si lo agrego
  * 0 si no lo agrego
  */
-int agregar(PBC **inicio, PBC **final, PBC nodo){
+int agregar(PBC **inicio, PBC **final, char *line){
+	PBC *nuevo;
+	int i = 0;
+	char palabras[11][150];
+	const char s[2] = " ";//Señal de separacion
+	char *token; //Separador de Strings
+	nuevo = new();
+
+	token = strtok(line, s);
+
+	while( token != NULL && i < 11) {
+		strcpy(palabras[i++],token);
+		token = strtok(NULL, s);
+	}
+
+	/*for(i=0;i<11;i++)
+		printf("%s ",palabras[i]);
+		* */
+
+
+	//Reservar memoria de cada char
+	/*
+	nuevo->user    = (char*)malloc (sizeof(palabras[0]));
+	nuevo->PID     = (char*)malloc (sizeof(palabras[1]));
+	nuevo->CPU     = (char*)malloc (sizeof(palabras[2]));
+	nuevo->MEM     = (char*)malloc (sizeof(palabras[3]));
+	nuevo->VSZ     = (char*)malloc (sizeof(palabras[4]));
+	nuevo->RSS     = (char*)malloc (sizeof(palabras[5]));
+	nuevo->TTY     = (char*)malloc (sizeof(palabras[6]));
+	nuevo->STAT    = (char*)malloc (sizeof(palabras[7]));
+	nuevo->START   = (char*)malloc (sizeof(palabras[8]));
+	nuevo->TIME    = (char*)malloc (sizeof(palabras[9]));
+	nuevo->COMMAND = (char*)malloc (sizeof(palabras[10]));
+	*/
+
+	//Copiar los datos de la linea
+	strcpy(nuevo->user,    palabras[0]);
+	strcpy(nuevo->PID,     palabras[1]);
+	strcpy(nuevo->CPU,     palabras[2]);
+	strcpy(nuevo->MEM,     palabras[3]);
+	strcpy(nuevo->VSZ,     palabras[4]);
+	strcpy(nuevo->RSS,     palabras[5]);
+	strcpy(nuevo->TTY,     palabras[6]);
+	strcpy(nuevo->STAT,    palabras[7]);
+	strcpy(nuevo->START,   palabras[8]);
+	strcpy(nuevo->TIME,    palabras[9]);
+	strcpy(nuevo->COMMAND, palabras[10]);
+
+	nuevo->sig = NULL;
 	//Preguntar si el nodo ya existe si no entondes lo de abajo
 	if(*inicio == NULL){
-		*inicio = &nodo;
-		*final = &nodo;
+		*inicio = nuevo;
+		*final = nuevo;
 	}else{
-		(*final)->sig = &nodo;
-		*final = &nodo;
+		(*final)->sig = nuevo;
+		*final = nuevo;
 	}
 	return 1;
 }
@@ -76,7 +125,7 @@ int agregar(PBC **inicio, PBC **final, PBC nodo){
  * 1 si se borro
  * 0 si no se borro
  */
-int borrar(PBC **inicio, PBC **final, PBC nodo){
+int borrar(PBC **inicio, PBC **final, PBC *nodo){
 	int b = 0;//Parte de los casos
 	PBC *aux1,*aux2,*aux3;
 	if(*inicio == NULL){
@@ -84,14 +133,14 @@ int borrar(PBC **inicio, PBC **final, PBC nodo){
 	}else{
 		// proceso de eliminacion
 		if(*final == *inicio){//si solo hay uno
-			if((*inicio) == &nodo){
+			if((*inicio) == nodo){
 				aux3 = *final;
 				*final = *inicio = (*final)->sig;
 				free(aux3);
 			}else
 				b = 2;
 		}else{
-			if((*inicio) == &nodo){//si es el primero
+			if((*inicio) == nodo){//si es el primero
 				aux3 = *inicio;
 				*inicio = (*inicio)->sig;
 				aux3->sig = NULL;
@@ -100,7 +149,7 @@ int borrar(PBC **inicio, PBC **final, PBC nodo){
 				aux1 = (*inicio)->sig;
 				aux2 = *inicio;
 				do{
-					if(aux1 == &nodo){
+					if(aux1 == nodo){
 						//si esta en medio
 						aux2->sig = aux1->sig;
 						aux1->sig = NULL;
@@ -129,12 +178,22 @@ int borrar(PBC **inicio, PBC **final, PBC nodo){
 void mostrar(PBC **inicio, PBC **final){
 	PBC *aux;
 	int i = 0;
+
+	leerArchivo(inicio, final);
 	aux = (*inicio);
 
-	leerArchivo(inicio, final, "ps.txt");
-
 	while(aux != NULL){
-		printf("Proceso: %d \n %s",i+1,aux->PID);
+		printf("%s ",aux->user);
+		printf("%s ",aux->PID);
+		printf("%s ",aux->CPU);
+		printf("%s ",aux->MEM);
+		printf("%s ",aux->VSZ);
+		printf("%s ",aux->RSS);
+		printf("%s ",aux->TTY);
+		printf("%s ",aux->STAT);
+		printf("%s ",aux->START);
+		printf("%s ",aux->TIME);
+		printf("%s\n",aux->COMMAND);
 		aux = aux->sig;
 		i++;
 	}
@@ -151,62 +210,20 @@ void pausa(){
 /*
  * Lee Archivo
  */
-int leerArchivo(PBC **inicio,PBC **final,char * nombreArchivo){
+void leerArchivo(PBC **inicio,PBC **final){
 	FILE * fp;//Apuntador Archivo
 	size_t len = 0;
 	ssize_t read;
-	char * line = NULL;//Line a leer
-	int contadorPaginas = 1;
+	char * line = NULL;//Linea a leer
 
-	fp = fopen(nombreArchivo, "r");
+	fp = fopen("ps.txt", "r");
 	if (fp == NULL)
 		exit(EXIT_FAILURE);
 
-	while ((read = getline(&line, &len, fp)) != -1) {
-		//Token strktoken
-		if(contadorPaginas != 1){
-			/*
-			 * La primera linea del archivo ps.txt tiene solo las
-			 * cabezeras, por eso no leemos esa linea
-
-			PBC *nuevo;
-			nuevo = new();
-			//Reservar memoria de cada char
-			nuevo->user = (char*)malloc (sizeof(Caracter leido del usuario));
-			nuevo->PID = (char*)malloc (sizeof());
-			nuevo->CPU = (char*)malloc (sizeof());
-			nuevo->MEM = (char*)malloc (sizeof());
-			nuevo->VSZ = (char*)malloc (sizeof());
-			nuevo->RSS = (char*)malloc (sizeof());
-			nuevo->TTY = (char*)malloc (sizeof());
-			nuevo->STAT = (char*)malloc (sizeof());
-			nuevo->START = (char*)malloc (sizeof());
-			nuevo->TIME = (char*)malloc (sizeof());
-			nuevo->COMMAND = (char*)malloc (sizeof());
-
-			//Copiar los datos de la linea
-			strcpy(nuevo->user, user);
-			strcpy(nuevo->PID, PID);
-			strcpy(nuevo->CPU, CPU);
-			strcpy(nuevo->MEM, MEM);
-			strcpy(nuevo->VSZ, VSZ);
-			strcpy(nuevo->RSS, RSS);
-			strcpy(nuevo->TTY, TTY);
-			strcpy(nuevo->STAT, STAT);
-			strcpy(nuevo->START, START);
-			strcpy(nuevo->TIME, TIME);
-			strcpy(nuevo->COMMAND, COMMAND);
-
-			nuevo->sig = NULL;
-			agregar(inicio,final,nuevo);
-			*/
-		}
-		contadorPaginas ++;
-	}
+	while ((read = getline(&line, &len, fp)) != -1)
+		agregar(inicio,final,line);
 
 	fclose(fp);
 	if (line)
 		free(line);
-
-	return contadorPaginas;
 }
