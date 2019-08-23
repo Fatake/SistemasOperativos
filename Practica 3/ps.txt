@@ -1,9 +1,0 @@
-USER        PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
-fatakep+      1  0.0  0.0   4176  2156 ?        S    21:02   0:00 /usr/bin/firejail /usr/bin/geany /home/fatakeplz/Documentos/Sistemas Operativos/Practica 3/SimulacionProcesos.c
-fatakep+      3  1.9  0.7 423208 58620 ?        Sl   21:02   0:52 /usr/bin/geany /home/fatakeplz/Documentos/Sistemas Operativos/Practica 3/SimulacionProcesos.c
-fatakep+      8  0.0  0.0   8124  4876 pts/0    Ss+  21:02   0:00 /bin/bash
-fatakep+    341  0.3  0.1  36436 11656 ?        S    21:47   0:00 xterm -class UXTerm -title uxterm -u8 -e /bin/sh /tmp/geany_run_script_67KK6Z.sh
-fatakep+    346  0.0  0.0   2384   760 pts/1    Ss+  21:47   0:00 /bin/sh /tmp/geany_run_script_67KK6Z.sh
-fatakep+    348  0.0  0.0   2272   676 pts/1    S+   21:47   0:00 ./SimulacionProcesos
-fatakep+    355  0.0  0.0   2384   760 pts/1    S+   21:48   0:00 sh -c ps -aux > ps.txt
-fatakep+    356  0.0  0.0  11108  3588 pts/1    R+   21:48   0:00 ps -aux
