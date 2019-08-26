@@ -26,6 +26,8 @@ int buscar(PBC **inicio, PBC *nodo);
 PBC *new();
 //Funciones que leer archivos
 void leerArchivo(PBC **inicio, PBC **final);
+//Funciones de Procesos
+void funcionHijo();
 //
 //Main
 //
@@ -36,19 +38,27 @@ int main(int argc, char **argv){
 
 	printf("\tProcesos:\n");
 	printf("\n<------------------------>\n");
+	pausa();
 	if((pid = fork()) == 0){
-		//while( time() % 5 == 0)
-		system("ps -aux > ps.txtx");
-		//printf("Prceso hijo instrucciones ps -aux > ps.txt");
+		for(;1;){
+			system("ps -a > psa.txt");
+			sleep(2);
+		}
 	}else{
-		mostrar(&inicio, &final);
-	/*
-	 * Contador de Tiempo quer ejecute mostrar cada 5 s
-	 * while(time() % 5 == 0)
-	 * 	ejecuta mostar()
-	 */
+		for( ;1;){
+			mostrar(&inicio, &final);
+			sleep(4);
+			limpia();
+			inicio = final = NULL;
+		}
+
 	}
 	return 0;
+}
+//Funcion hijo
+void funcionHijo(){
+	while(1)
+		system("ps -a > ps.txt");
 }
 //recerva memoria
 PBC *new(){
@@ -74,26 +84,6 @@ int agregar(PBC **inicio, PBC **final, char *line){
 		strcpy(palabras[i++],token);
 		token = strtok(NULL, s);
 	}
-
-	/*for(i=0;i<11;i++)
-		printf("%s ",palabras[i]);
-		* */
-
-
-	//Reservar memoria de cada char
-	/*
-	nuevo->user    = (char*)malloc (sizeof(palabras[0]));
-	nuevo->PID     = (char*)malloc (sizeof(palabras[1]));
-	nuevo->CPU     = (char*)malloc (sizeof(palabras[2]));
-	nuevo->MEM     = (char*)malloc (sizeof(palabras[3]));
-	nuevo->VSZ     = (char*)malloc (sizeof(palabras[4]));
-	nuevo->RSS     = (char*)malloc (sizeof(palabras[5]));
-	nuevo->TTY     = (char*)malloc (sizeof(palabras[6]));
-	nuevo->STAT    = (char*)malloc (sizeof(palabras[7]));
-	nuevo->START   = (char*)malloc (sizeof(palabras[8]));
-	nuevo->TIME    = (char*)malloc (sizeof(palabras[9]));
-	nuevo->COMMAND = (char*)malloc (sizeof(palabras[10]));
-	*/
 
 	//Copiar los datos de la linea
 	strcpy(nuevo->user,    palabras[0]);
@@ -187,13 +177,14 @@ void mostrar(PBC **inicio, PBC **final){
 		printf("%s ",aux->PID);
 		printf("%s ",aux->CPU);
 		printf("%s ",aux->MEM);
-		printf("%s ",aux->VSZ);
+		/*printf("%s ",aux->VSZ);
 		printf("%s ",aux->RSS);
 		printf("%s ",aux->TTY);
 		printf("%s ",aux->STAT);
 		printf("%s ",aux->START);
 		printf("%s ",aux->TIME);
 		printf("%s\n",aux->COMMAND);
+		* */
 		aux = aux->sig;
 		i++;
 	}
@@ -216,7 +207,7 @@ void leerArchivo(PBC **inicio,PBC **final){
 	ssize_t read;
 	char * line = NULL;//Linea a leer
 
-	fp = fopen("ps.txt", "r");
+	fp = fopen("psa.txt", "r");
 	if (fp == NULL)
 		exit(EXIT_FAILURE);
 
