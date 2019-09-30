@@ -1,4 +1,4 @@
-#include <sys/types.h>	/* para key_t */
+#include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #define PERMISOS 0644
@@ -11,31 +11,31 @@ int creaSemaforo (key_t clave, int valor_inicial ){
 		clave,				/* con una cierta clave */
 		1,					/* con un solo elemento */
 		IPC_CREAT|PERMISOS	/* lo crea (IPC_CREAT) con
-							unos PERMISOS */
+								unos PERMISOS */
 	);
 
 	if ( semid < 0 )//Valores negativos si hubo errores
 		return -1;
 
-	/* Da el valor inicial al semáforo */
 	semctl ( semid, 0, SETVAL, valor_inicial );
 	return semid;
 }
-
 /*
- * abreSemaforo: Abre un semáforo que otro proceso ya creó
-*/
-int abreSemaforo (key_t clave){
-	return semget(clave,1,0);
+ * Destruye semaforo
+ */
+int destruyeSemaforo (int semid, int semnum){
+	if(!semctl ( semid, semnum, IPC_RMID ))
+		return -1;
+	return 1;
 }
-
 /*
  * Operador Decrementa
  */
 void semDecre ( int semid ){
+	/* Decrementa semval o bloquea si cero */
 	struct sembuf opDec [] =
 	{
-	  0, -1, 0	/* Decrementa semval o bloquea si cero */
+	  0, -1, 0
 	};
 
 	semop ( semid, opDec, 1 );
@@ -44,9 +44,10 @@ void semDecre ( int semid ){
  * Operador Incrementa
  */
 void semIncre ( int semid ){
+	/* Incrementa en 1 el semáforo */
 	struct sembuf opInc [] =
 	{
-	   0, 1, 0		/* Incrementa en 1 el semáforo */
+	   0, 1, 0
 	};
 	semop ( semid, opInc, 1 );
 }
