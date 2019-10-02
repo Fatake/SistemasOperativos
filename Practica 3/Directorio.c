@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <pwd.h>
 
-//
+
 void strmode(mode_t mode, char * buf) {
 	const char chars[] = "rwxrwxrwx";
 	for (size_t i = 0; i < 9; i++) {
@@ -27,6 +27,14 @@ char * getUser(uid_t uid){
 		return pws->pw_name;
 }
 
+char * getTime(time_t t){
+	return ctime(&t);	
+}
+
+char * getSize(off_t size){
+	return (long long) size; 
+}
+
 int parsetointLink(nlink_t *source){
 	int buffer_size = sizeof(*source);
 	char buffer[buffer_size];
@@ -34,11 +42,27 @@ int parsetointLink(nlink_t *source){
 	int val = atoi(buffer);
 	return val;
 }
+char * longtoChar(long long val, int base){
+	static char buf[64] = {0};
+	int i = 62;
+	int sign = (val < 0);
+	if( sign )
+		val = -val;
+	if(val == 0) 
+		return "0";
+	for(; val && i; val /= base)
+		buf[i] = "0123456789abcdef"[val % base];
+
+	if (sign)
+		buf[i--] = '-';
+	return &buf[i+1];	
+}
 int main(int argc, char **argv){
 	DIR *dp;
 	struct dirent *ep;
 	struct stat sb;
 	char buf[10];
+	char aux[255];
 	char leector[333];
 	int pipefd[2];
 
@@ -80,11 +104,15 @@ int main(int argc, char **argv){
 				sprintf(leector, "", parsetointLink(sb.st_nlink));
 				write(pipefd[1], leector, strlen(leector));
 				write(pipefd[1], " ", strlen(" "));
-				write(pipefd[1], (long long) sb.st_size, sizeof((long long) sb.st_size));
+				
+				write(pipefd[1],  (unsigned long long)sb.st_size, sizeof( (unsigned long long)sb.st_size ));
+				
 				write(pipefd[1], " ", strlen(" "));
 				write(pipefd[1], ctime(&sb.st_ctime), strlen(ctime(&sb.st_ctime)));
 				write(pipefd[1], " ", strlen(" "));
-				write(pipefd[1], ep->d_name, sizeof(ep->d_name));
+				strncpy(aux,ep->d_name,254);
+				aux[254] = '\0';
+				write(pipefd[1], aux, sizeof(aux));
 				write(pipefd[1], " ", strlen(" "));
 				write(pipefd[1], "\n\n", strlen("\n\n"));
 
