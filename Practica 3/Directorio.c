@@ -22,9 +22,12 @@ void strmode(mode_t mode, char * buf) {
 }
 
 char * getUser(uid_t uid){
+	char c[5];
 	struct passwd *pws;
 	pws = getpwuid(uid);
-		return pws->pw_name;
+	if(pws == NULL)
+		return "root";
+	return pws->pw_name;
 }
 
 char * getTime(time_t t){
@@ -99,7 +102,9 @@ int main(int argc, char **argv){
 
 				write(pipefd[1], buf, strlen(buf));
 				write(pipefd[1], " ", strlen(" "));
-				write(pipefd[1], getUser(sb.st_uid), strlen(getUser(sb.st_uid)));
+				strncpy(aux,getUser(sb.st_uid),254);
+				aux[254] = '\0';
+				write(pipefd[1], aux, sizeof(aux));
 				write(pipefd[1], " ", strlen(" "));
 				sprintf(leector, "", parsetointLink(sb.st_nlink));
 				write(pipefd[1], leector, strlen(leector));

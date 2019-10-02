@@ -14,10 +14,6 @@ int main(int argc, char **argv){
 
 	int semmutex = creaSemaforo(0,1);//Aumenta Contador e imprime
 
-
-	printf(" semaforo Mutex: %d \n",semmutex);
-
-	scanf("%s",&c);
 	pid = fork();
 
 	while(1){
