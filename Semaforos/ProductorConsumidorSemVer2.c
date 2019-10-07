@@ -2,6 +2,8 @@
 #include <unistd.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <stdlib.h>
+#include <time.h>
 #include "semaforos.h"
 #define True 1
 #define False 0
@@ -16,29 +18,38 @@ int semmutex, semfull, semempty ;
 //Main
 
 int* Prod(int* memo){
-			semDecre(semempty);
-			semDecre(semmutex);
+	write(1,"PRODUCE| ",sizeof("PRODUCE"));
+	semDecre(semempty);
+	semDecre(semmutex);
 
-			(*memo)++;
-			write(1,"PRODUCE| ",sizeof("PRODUCE"));
-			printf("LUGARES OCUPADOS EN BUFFER = %d\n\n", *memo);
+	(*memo)++;
 
-			semIncre(semmutex);
-			semIncre(semfull);
+	printf("LUGARES OCUPADOS EN BUFFER = %d\n\n", *memo);
+
+	semIncre(semmutex);
+	semIncre(semfull);
 	return *memo;
 }
 
 int* Consum(int* memo){
-			semDecre(semfull);
-			semDecre(semmutex);
+	write(1,"CONSUME| ", sizeof("CONSUME"));
+	semDecre(semfull);
+	semDecre(semmutex);
 
-			(*memo)--;
-			write(1,"CONSUME| ", sizeof("CONSUME"));
-			printf("LUGARES OCUPADOS EN BUFFER = %d\n\n", *memo);
+	(*memo)--;
 
-			semIncre(semmutex);
-			semIncre(semempty);
+	printf("LUGARES OCUPADOS EN BUFFER = %d\n\n", *memo);
+
+	semIncre(semmutex);
+	semIncre(semempty);
+
 	return *memo;
+}
+int randomLotoUp(int lower, int upper,int count) {
+	int i, num;
+	for (i = 0; i < count; i++)
+		num = (rand() % (upper - lower + 1)) + lower;
+	return num;
 }
 
 int main(int argc, char **argv){
@@ -48,21 +59,24 @@ int main(int argc, char **argv){
 
 	*Mem = 0;
 
-	semmutex = creaSemaforo(0,1);	semfull = creaSemaforo(0,0);	semempty = creaSemaforo(0,100);
+	semmutex = creaSemaforo(0,1);
+	semfull = creaSemaforo(0,0);
+	semempty = creaSemaforo(0,100);
 
 	pid = fork();
-	while(True){
+	while( True )
 		if(pid == 0){
-			//write(1,"CONSUMIDOR", sizeof("CONSUMIDOR"));
+			srand(time(0)+100);
 			*Mem = Consum(Mem);
+			for (int j = 0; j<randomLotoUp(1,50000000,1000);j++)
+				d = j*randomLotoUp(1,50000000,1);
 
 		}else{
-			//write(1,"PRODUCTOR",sizeof("PRODUCTOR"));
+			srand(time(0)+200);
 			*Mem = Prod(Mem);
-
-
+			for (int j = 0; j<randomLotoUp(1,50000000,1000);j++)
+				d = j*randomLotoUp(1,50000000,1);
 		}
-	}
 
 	return 0;
 }
