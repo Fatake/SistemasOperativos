@@ -9,7 +9,8 @@
 int main(int argc, char **argv){
 	int aux,i;
 	if(argc >= 4){
-		if(!strcmp(argv[1],"-m")){//Memoria
+		//Memoria
+		if(!strcmp(argv[1],"-m")){
 			if(!strcmp(argv[2],"-c")){//Crear Memoria
 				aux = createSHM(atoi(argv[3]));
 				if(aux > 0)
@@ -23,7 +24,8 @@ int main(int argc, char **argv){
 					printf("Error al Borrar la Memoria");
 			}
 
-		}else if(!strcmp(argv[1],"-s")){//Semaforo
+		//Memoria
+		}else if(!strcmp(argv[1],"-s")){
 			if(!strcmp(argv[2],"-c")){//Crear Semáforo
 				if( argc > 4 && atoi(argv[3] ) > 0 ){
 					for( i = 1; i <= atoi(argv[3]); i++){
@@ -43,15 +45,15 @@ int main(int argc, char **argv){
 					}
 				}else
 					printf("Error, #sem debe ser mayor que 0");
-					
-			}else if(!strcmp(argv[2],"-d")){//Borrar 
+			}else if(!strcmp(argv[2],"-d")){//Borrar
 				if(destruyeSemaforo(atoi(argv[3]),0) != -1)
 					printf("Semid %d Borrado\n",atoi(argv[3]));
 				else
 					printf("Error al Borrar El semaforo con semid: %d",atoi(argv[3]));
 			}
 
-		}else if(!strcmp(argv[1],"-w")){//Mensajes
+		//Mensajes
+		}else if(!strcmp(argv[1],"-w")){
 			printf("Zona de Mensajes");
 
 		}else
@@ -67,7 +69,7 @@ int main(int argc, char **argv){
 				printf("-s <Semaforo> -d <Borrar> <Int:semid>\n");
 				printf("-w <Mensajes> -c <Crear> <Parametros>\n");
 				printf("-w <Mensajes> -d <Borrar> <mensajeID>\n");
-				printf("-s -c <Cantidad> si no se especifica el 4rto parametro el valor defecto es 0\n");
+				printf("-s -c <Int:Cantidad> si no se especifica el 4rto parametro el valor defecto es 0\n");
 				printf("Ejemplo:\n");
 				printf("./ipc -s -c 3 0\n");
 				printf("Creara 3 semaforos con valor 0\n");
