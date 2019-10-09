@@ -37,13 +37,13 @@ int createMSG(char x[]){
 
 	key_t msgkey = ftok("/bin/ls",33);
 	if(msgkey == (key_t)-1){
-		write(1,"ERROR AL OBTENER KEY DEL MENSAJE",sizeof("ERROR AL OBTENER KEY DEL MENSAJE"));
+		printf("ERROR AL OBTENER KEY DEL MENSAJE\n");
 		return -1;
 	}
 
 	int msgid = msgget( msgkey,0600|IPC_CREAT );
 	if(msgid == -1){
-		write(1,"ERROR AL OBTENER ID DE MENSAJE",sizeof("ERROR AL OBTENER ID DE MENSAJE"));
+		printf("ERROR AL OBTENER ID DE MENSAJE\n");
 		return -1;
 	}
 	msg.ID = 1;

@@ -8,6 +8,7 @@
  */
 int main(int argc, char **argv){
 	int aux,i;
+	char auxc[50];
 	if(argc >= 4){
 		//Memoria
 		if(!strcmp(argv[1],"-m")){
@@ -54,8 +55,20 @@ int main(int argc, char **argv){
 
 		//Mensajes
 		}else if(!strcmp(argv[1],"-w")){
-			printf("Zona de Mensajes");
-
+			if(!strcmp(argv[2],"-c")){//Crear
+				strncpy(auxc,argv[3],49);
+				auxc[49] = '\0';
+				aux = createMSG(auxc);
+				if( aux >= 0)
+					printf("Mensaje creado, msgid: %d Mensaje %s",aux,auxc);
+				else
+					printf("Error al Crear el mensaje u.u");
+			}else if(!strcmp(argv[2],"-d")){//Borrar
+				if(!deleteMSG(atoi(argv[3])))
+					printf("Mensaje con msgid %d Borrado\n",atoi(argv[3]));
+				else
+					printf("Error al Borrar el Mensaje %d",atoi(argv[3]));
+			}
 		}else
 			printf("Parametro no encontrado\nUtilice --help Para obtener ayuda");
 	}else{
@@ -67,8 +80,8 @@ int main(int argc, char **argv){
 				printf("-m <Memoria Comparitda> -d <Borrar> <Int:shmid>\n");
 				printf("-s <Semaforo> -c <Crear> <Int:Cantidad> <Int:Valor Inicial>\n");
 				printf("-s <Semaforo> -d <Borrar> <Int:semid>\n");
-				printf("-w <Mensajes> -c <Crear> <Parametros>\n");
-				printf("-w <Mensajes> -d <Borrar> <mensajeID>\n");
+				printf("-w <Mensajes> -c <Crear> <Char:Mensaje> **\"Cadena entre comillas\"\n");
+				printf("-w <Mensajes> -d <Borrar> <Int:msgid>\n");
 				printf("-s -c <Int:Cantidad> si no se especifica el 4rto parametro el valor defecto es 0\n");
 				printf("Ejemplo:\n");
 				printf("./ipc -s -c 3 0\n");
