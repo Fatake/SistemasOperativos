@@ -1,0 +1,8 @@
+CC=gcc
+CFLAGS=-lGL -lGLU -lglut
+
+
+hellomake: $(OBJ)
+	$(CC) $(CFLAGS) -o $@ $^ 
+
+//gcc ejemoplo.c -lGL -lGLU -lglut -o eje
