@@ -25,16 +25,21 @@ int main(int argc, char **argv){
 					printf("Error al Borrar la Memoria");
 			}
 
-		//Memoria
+		//Semaforos
 		}else if(!strcmp(argv[1],"-s")){
 			if(!strcmp(argv[2],"-c")){//Crear Semáforo
 				if( argc > 4 && atoi(argv[3] ) > 0 ){
 					for( i = 1; i <= atoi(argv[3]); i++){
-						aux = creaSemaforo(0,atoi(argv[4]));
-						if(aux > 0)
-							printf("Semaforo Creado semid: %d valor: %d\n",aux,atoi(argv[4]));
-						else
-							printf("Error al Crear el Semaforo %d\n",i);
+						if( atoi(argv[4]) < 0 ){
+							printf("No se pueden crear semaforo con valor negativo u.u\n");
+							break;
+						}else{
+							aux = creaSemaforo(0,atoi(argv[4]));
+							if(aux > 0)
+								printf("Semaforo Creado semid: %d valor: %d\n",aux,atoi(argv[4]));
+							else
+								printf("Error al Crear el Semaforo %d\n",i);
+						}
 					}
 				}else if(atoi(argv[3]) > 0){
 					for( i = 1; i <= atoi(argv[3]); i++){
@@ -74,22 +79,22 @@ int main(int argc, char **argv){
 	}else{
 		if(argc < 4){
 			if(argc > 1 && !strcmp(argv[1],"--help")){
-				printf("Programa que crear recursos IPC \n");
-				printf("Parametros admitidos:\n");
+				printf("\tPrograma que crear recursos IPC \n\n");
+				printf("Parametros admitidos:\n\n");
 				printf("-m <Memoria Comparitda> -c <Crear> <Int:Tamanio>\n");
-				printf("-m <Memoria Comparitda> -d <Borrar> <Int:shmid>\n");
+				printf("-m <Memoria Comparitda> -d <Borrar> <Int:shmid>\n\n");
 				printf("-s <Semaforo> -c <Crear> <Int:Cantidad> <Int:Valor Inicial>\n");
 				printf("-s <Semaforo> -d <Borrar> <Int:semid>\n");
+				printf("-s -c <Int:Cantidad> si no se especifica el 4rto parametro el valor defecto es 0\n\n");
 				printf("-w <Mensajes> -c <Crear> <Char:Mensaje> **\"Cadena entre comillas\"\n");
 				printf("-w <Mensajes> -d <Borrar> <Int:msgid>\n");
-				printf("-s -c <Int:Cantidad> si no se especifica el 4rto parametro el valor defecto es 0\n");
-				printf("Ejemplo:\n");
+				printf("\n\nEjemplo:\n");
 				printf("./ipc -s -c 3 0\n");
 				printf("Creara 3 semaforos con valor 0\n");
 			}else
 				printf("Parametro no encontrado\nUtilice --help Para obtener ayuda");
 		}
 	}
-	printf("\n\n");
+	printf("\n");
 	return 0;
 }

@@ -46,3 +46,12 @@ int main(int argc, char **argv){
 	
 	return 0;
 }
+//
+//Funciones
+//
+void filosofo(int numeroFilosofo){
+	
+}
+void takeForks(int i);
+void putForks(int i);
+void comprueba(int i);
