@@ -8,6 +8,8 @@
 #define THINKING 0
 #define HUNGRY 1
 #define EATING 2
+#define True 1
+#define False 0
 
 //Tipos
 typedef int semaforo;
@@ -49,9 +51,46 @@ int main(int argc, char **argv){
 //
 //Funciones
 //
+/*
+ * Funcion Filososofo
+ */
 void filosofo(int numeroFilosofo){
-	
+	while (True){
+		printf("\nPensando----\n");
+		takeForks(numeroFilosofo);
+		printf("\nComiendo----\n");
+		putForks(numeroFilosofo);
+	}
+
 }
-void takeForks(int i);
-void putForks(int i);
-void comprueba(int i);
+/*
+ * Funcion Tomar los Tenedores
+ */
+void takeForks(int i){
+	semDecre(mutex);//Down
+	estado[i] = HUNGRY;
+	comprueba(i);
+	semIncre(mutex);//Up
+	semDecre(sem[i]);//Down
+}
+/*
+ * Funcion Dejar los tenedores
+ */
+void putForks(int i){
+	semDecre(mutex);//Down
+	estado[i] = THINKING;
+	comprueba(left);
+	comprueba(right);
+	semIncre(mutex);//Up
+}
+/*
+ * Funcion Comprueba
+ */
+void comprueba(int i){
+	if(estado[i] == HUNGRY &&
+	estado[left] != EATING &&
+	estado[right] != EATING){
+		estado[i] = EATING;
+		semIncre(sem[i]);
+	}
+}

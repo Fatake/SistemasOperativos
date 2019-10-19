@@ -81,22 +81,21 @@ int destruyeSemaforo (int semid, int semnum){
 	return semctl ( semid, semnum, IPC_RMID );
 }
 /*
- * Operador Decrementa
+ * Operador Down de un semaforo
+ * Decrementa en uno el valor del semaforo
  */
 void semDecre ( int semid ){
-	/* Decrementa semval o bloquea si cero */
 	struct sembuf opDec [] =
 	{
 	  0, -1, 0
 	};
-
 	semop ( semid, opDec, 1 );
 }
 /*
- * Operador Incrementa
+ * Operador Up de un Semaforo
+ * Incrementa el vaor de un semaforo en 1
  */
 void semIncre ( int semid ){
-	/* Incrementa en 1 el semáforo */
 	struct sembuf opInc [] =
 	{
 	   0, 1, 0
