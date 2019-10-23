@@ -7,44 +7,53 @@
 #include "semaforos.h"
 #define True 1
 #define False 0
+#define N 100
 
 /*
  * Semaforos
  */
-
-
 int semmutex, semfull, semempty ;
 
-//Main
 
+/*
+ * Productor
+ */
 int* Prod(int* memo){
-	write(1,"PRODUCE| ",sizeof("PRODUCE"));
+	write(1,"P: ",sizeof("P: "));
 	semDecre(semempty);
 	semDecre(semmutex);
 
+
+	printf("%d| %d \n\n", *memo, semempty);
+
 	(*memo)++;
 
-	printf("LUGARES OCUPADOS EN BUFFER = %d\n\n", *memo);
 
 	semIncre(semmutex);
 	semIncre(semfull);
 	return *memo;
 }
 
+/*
+ * consumidor
+ */
 int* Consum(int* memo){
-	write(1,"CONSUME| ", sizeof("CONSUME"));
+	write(1,"C: ", sizeof("C: "));
 	semDecre(semfull);
 	semDecre(semmutex);
 
+
+	printf("%d| %d \n\n", *memo, semfull);
+
 	(*memo)--;
 
-	printf("LUGARES OCUPADOS EN BUFFER = %d\n\n", *memo);
 
 	semIncre(semmutex);
 	semIncre(semempty);
 
 	return *memo;
 }
+//Rand
 int randomLotoUp(int lower, int upper,int count) {
 	int i, num;
 	for (i = 0; i < count; i++)
@@ -52,8 +61,11 @@ int randomLotoUp(int lower, int upper,int count) {
 	return num;
 }
 
+/*
+ * 
+ */
 int main(int argc, char **argv){
-	int pid;
+	int pid,d=0;
 	int shmid = shmget(0,sizeof(int),IPC_PRIVATE|IPC_CREAT|0666);
 	int *Mem = (int *) shmat(shmid,0,0);
 
@@ -61,7 +73,7 @@ int main(int argc, char **argv){
 
 	semmutex = creaSemaforo(0,1);
 	semfull = creaSemaforo(0,0);
-	semempty = creaSemaforo(0,100);
+	semempty = creaSemaforo(0,N);
 
 	pid = fork();
 	while( True )
