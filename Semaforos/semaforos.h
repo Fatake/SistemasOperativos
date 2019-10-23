@@ -38,7 +38,8 @@ void semDecre ( int semid ){
 	  0, -1, 0
 	};
 
-	semop ( semid, opDec, 1 );
+	if(semop ( semid, opDec, 1 ) < 0)
+		exit(1);
 }
 /*
  * Operador Incrementa
@@ -49,7 +50,8 @@ void semIncre ( int semid ){
 	{
 	   0, 1, 0
 	};
-	semop ( semid, opInc, 1 );
+	if(semop ( semid, opInc, 1 ) < 0)
+		exit(1);
 }
 /*
 	struct sembuf {

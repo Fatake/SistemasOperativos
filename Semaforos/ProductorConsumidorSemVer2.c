@@ -7,7 +7,7 @@
 #include "semaforos.h"
 #define True 1
 #define False 0
-#define N 100
+#define N 5
 
 /*
  * Semaforos
@@ -19,14 +19,14 @@ int semmutex, semfull, semempty ;
  * Productor
  */
 int* Prod(int* memo){
-	write(1,"P: ",sizeof("P: "));
 	semDecre(semempty);
+	printf("Decrementa Empry\n\n\n\n");
 	semDecre(semmutex);
+	printf("Decrementa mutex n\n\n\n\n\n\n");
 
+	(*memo) = 1+randomLotoUp(1,50000000,1);
 
-	printf("%d| %d \n\n", *memo, semempty);
-
-	(*memo)++;
+	printf("P: %d| %d \n\n",semctl ( semfull, 0, GETVAL), *memo);
 
 
 	semIncre(semmutex);
@@ -38,15 +38,10 @@ int* Prod(int* memo){
  * consumidor
  */
 int* Consum(int* memo){
-	write(1,"C: ", sizeof("C: "));
 	semDecre(semfull);
 	semDecre(semmutex);
 
-
-	printf("%d| %d \n\n", *memo, semfull);
-
-	(*memo)--;
-
+	printf("C: %d| %d \n\n",N-1 - semctl ( semempty, 0, GETVAL), *memo);
 
 	semIncre(semmutex);
 	semIncre(semempty);
@@ -74,17 +69,17 @@ int main(int argc, char **argv){
 	semmutex = creaSemaforo(0,1);
 	semfull = creaSemaforo(0,0);
 	semempty = creaSemaforo(0,N);
-
+	
 	pid = fork();
 	while( True )
 		if(pid == 0){
-			srand(time(0)+100);
+			srand(time(0)+500);
 			*Mem = Consum(Mem);
 			for (int j = 0; j<randomLotoUp(1,50000000,1000);j++)
 				d = j*randomLotoUp(1,50000000,1);
 
 		}else{
-			srand(time(0)+200);
+			srand(time(0)+2500);
 			*Mem = Prod(Mem);
 			for (int j = 0; j<randomLotoUp(1,50000000,1000);j++)
 				d = j*randomLotoUp(1,50000000,1);
