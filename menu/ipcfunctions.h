@@ -7,12 +7,12 @@
 #include <sys/msg.h>
 #include <stdlib.h>
 #define PERMISOS 0644
+#define TAMANIO_MAXIMO_MENSAJE 150
 
-typedef struct my_msg{
-	long ID;
-	int inf;
-	char Msg[10];
-}mymsg;
+typedef struct mi_mensaje{
+	long mtype;
+	char mensaje[TAMANIO_MAXIMO_MENSAJE];
+}miMensaje;
 
 /*
  * Crea una memoria compartida dependiedo del tamaño dado
@@ -29,51 +29,63 @@ int createSHM(int size){
 int deleteSHM(int shmid){
 	return shmctl( shmid, IPC_RMID, NULL );
 }
+/*
+ * Borra un mensaje
+ */
+int deleteMSG( int mensajeID ){
+	return msgctl( mensajeID, IPC_RMID, NULL );
+}
+/*
+ * Leer Mensaje
+ */
+char* leerMensaje(int msgid, miMensaje *mensaje, long type) {
+	mensaje->mtype = type;
+	msgrcv(msgid, (miMensaje *)mensaje, TAMANIO_MAXIMO_MENSAJE, type, 0);
+	
+	return mensaje->mensaje;
+}
+/*
+ * Enviar Mensaje
+ */
+int enviarMensaje(int msgid, miMensaje *mensaje, long type, char *text) {
+	mensaje->mtype = type;
+	strcpy( mensaje->mensaje, text);
+	
+	if ( (msgsnd(msgid, (miMensaje *)mensaje, strlen( mensaje->mensaje )+1,0)) == -1)
+		return -1;
+
+	return 1;
+}
 
 /*
  * Crea un mensaje
  */
-int createMSG(char x[]){
-	mymsg msg;
+int createMSG(char *textoMensaje){
+	miMensaje mensajeNuevo;
+	int msgid;
+	key_t msgkey;
 
-	key_t msgkey = ftok("/bin/ls",33);
+	//Obtiene una llave
+	msgkey = ftok("/bin/ls",33);
 	if(msgkey == (key_t)-1){
 		printf("ERROR AL OBTENER KEY DEL MENSAJE\n");
 		return -1;
 	}
-
-	int msgid = msgget( msgkey,0600|IPC_CREAT );
+	//Crea a cola de mensajes
+	msgid = msgget( msgkey, PERMISOS|IPC_CREAT );
 	if(msgid == -1){
 		printf("ERROR AL OBTENER ID DE MENSAJE\n");
 		return -1;
 	}
-	msg.ID = 1;
-	msg.inf = 29;
-	strcpy(msg.Msg,x);
+
+	if(enviarMensaje( msgid, (miMensaje *) &mensajeNuevo, 3, textoMensaje ) == -1){
+		perror ("msgsnd");
+		exit(1);
+	}
 
 	return msgid;
 }
-/*
- * Borra un mensaje
- */
-int deleteMSG(int msgid){
-	return msgctl( msgid,IPC_RMID,NULL );
-}
-/*
- * Lee un mensaje
- */
-char * read_message( int qid, long type, mymsg *qbuf ){
-	int	result, length;
 
-	/* The length is essentially the size of the structure minus siz) */eof(mtype
-	length = sizeof(struct mymsgbuf) - sizeof(long);
-
-	if((result = msgrcv( qid, qbuf, length, type,  0)) == -1){
-		return(NULL);
-	}
-
-	return(result);
-}
 
 /*
  * creaSemaforo: abre o crea un semáforo
@@ -98,9 +110,6 @@ int creaSemaforo (key_t clave, int valor_inicial ){
 int destruyeSemaforo (int semid, int semnum){
 	return semctl ( semid, semnum, IPC_RMID );
 }
-/*
- * Operador Decrementa
- */
 void semDecre ( int semid ){
 	/* Decrementa semval o bloquea si cero */
 	struct sembuf opDec [] =
@@ -108,7 +117,8 @@ void semDecre ( int semid ){
 	  0, -1, 0
 	};
 
-	semop ( semid, opDec, 1 );
+	if(semop ( semid, opDec, 1 ) < 0)
+		exit(1);
 }
 /*
  * Operador Incrementa
@@ -119,6 +129,6 @@ void semIncre ( int semid ){
 	{
 	   0, 1, 0
 	};
-	semop ( semid, opInc, 1 );
+	if(semop ( semid, opInc, 1 ) < 0)
+		exit(1);
 }
-

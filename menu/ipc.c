@@ -7,8 +7,10 @@
  * Main
  */
 int main(int argc, char **argv){
+	miMensaje auxmsg;
 	int aux,i;
-	char auxc[50];
+	char auxc[50], *auxc2;
+
 	if(argc >= 4){
 		//Memoria
 		if(!strcmp(argv[1],"-m")){
@@ -51,7 +53,7 @@ int main(int argc, char **argv){
 					}
 				}else
 					printf("Error, #sem debe ser mayor que 0");
-			}else if(!strcmp(argv[2],"-d")){//Borrar
+			}else if( !strcmp(argv[2],"-d") ){//Borrar
 				if(destruyeSemaforo(atoi(argv[3]),0) != -1)
 					printf("Semid %d Borrado\n",atoi(argv[3]));
 				else
@@ -59,21 +61,33 @@ int main(int argc, char **argv){
 			}
 
 		//Mensajes
-		}else if(!strcmp(argv[1],"-w")){
-			if(!strcmp(argv[2],"-c")){//Crear
-				strncpy(auxc,argv[3],49);
+		}else if( !strcmp(argv[1],"-w" )){
+
+			if( !strcmp(argv[2],"-c" )){//Crear
+				strncpy( auxc,argv[3],49 );
 				auxc[49] = '\0';
 				aux = createMSG(auxc);
 				if( aux >= 0)
-					printf("Mensaje creado, msgid: %d Mensaje %s",aux,auxc);
+					printf("Mensaje creado\n msgid: %d \nMensaje: %s",aux,auxc);
 				else
 					printf("Error al Crear el mensaje u.u");
-			}else if(!strcmp(argv[2],"-d")){//Borrar
-				if(!deleteMSG(atoi(argv[3])))
+	
+			}else if( !strcmp(argv[2],"-d" )){//Borrar
+				if( !deleteMSG(atoi(argv[3])) )
 					printf("Mensaje con msgid %d Borrado\n",atoi(argv[3]));
 				else
 					printf("Error al Borrar el Mensaje %d",atoi(argv[3]));
+	
+			}else if ( !strcmp(argv[2],"-r") ){//Leer
+				if ( argc > 3 ){
+					printf("Empezando a leer...\n");
+					auxc2 = leerMensaje( atoi(argv[3]), &auxmsg, 3 );
+					printf ("Mensaje: \n%s\n", auxc2);	
+				}else
+					printf("Error al leer mensaje u.u\n");
+				
 			}
+			
 		}else
 			printf("Parametro no encontrado\nUtilice --help Para obtener ayuda");
 	}else{
@@ -83,11 +97,14 @@ int main(int argc, char **argv){
 				printf("Parametros admitidos:\n\n");
 				printf("-m <Memoria Comparitda> -c <Crear> <Int:Tamanio>\n");
 				printf("-m <Memoria Comparitda> -d <Borrar> <Int:shmid>\n\n");
+
 				printf("-s <Semaforo> -c <Crear> <Int:Cantidad> <Int:Valor Inicial>\n");
 				printf("-s <Semaforo> -d <Borrar> <Int:semid>\n");
 				printf("-s -c <Int:Cantidad> si no se especifica el 4rto parametro el valor defecto es 0\n\n");
+
 				printf("-w <Mensajes> -c <Crear> <Char:Mensaje> **\"Cadena entre comillas\"\n");
-				printf("-w <Mensajes> -d <Borrar> <Int:msgid>\n");
+				printf("-w <Mensajes> -d <Borrar> <Int: msgid>\n");
+				printf("-w <Mensajes> -r <Leere> <Int: msgid>\n");
 				printf("\n\nEjemplo:\n");
 				printf("./ipc -s -c 3 0\n");
 				printf("Creara 3 semaforos con valor 0\n");
