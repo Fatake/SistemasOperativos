@@ -1,8 +1,13 @@
-#include <GL/glut.h>  // GLUT, includes glu.h and gl.h
+#include <GL/glut.h>
+/*
+ * Compilacion
+ * gcc FilosofosGrafico.c -lGL -lGLU -lglut -o Fil
+ */
 
-/* Handler for window-repaint event. Call back when the window first appears and
-   whenever the window needs to be re-painted. */
-void display() {
+/*
+ * Pantalla
+ */
+void pantalla() {
    glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
    glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer
 
@@ -18,13 +23,15 @@ void display() {
    glFlush();  // Render now
 }
 
-/* Main function: GLUT runs as a console application starting at main()  */
+/*
+ * Main
+ */
 int main(int argc, char** argv) {
    glutInit(&argc, argv);                 // Initialize GLUT
-   glutCreateWindow("OpenGL Setup Test"); // Create a window with the given title
-   glutInitWindowSize(320, 320);   // Set the window's initial width & height
-   glutInitWindowPosition(50, 50); // Position the window's initial top-left corner
-   glutDisplayFunc(display); // Register display callback handler for window re-paint
+   glutCreateWindow("Filosofos Grafico"); // Create a window with the given title
+   glutInitWindowSize(1000, 1000);   // Set the window's initial width & height
+   glutInitWindowPosition(400, 500); // Position the window's initial top-left corner
+   glutDisplayFunc(pantalla); // Register display callback handler for window re-paint
    glutMainLoop();           // Enter the infinitely event-processing loop
    return 0;
 }

@@ -1,32 +1,7 @@
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-	
 #include <GL/glut.h>
+#include <stdlib.h> 
  
-void displayMe(void)
-{
+void displayMe(void){
     glClear(GL_COLOR_BUFFER_BIT);
     glBegin(GL_POLYGON);
         glVertex3f(0.5, 0.0, 0.5);
@@ -37,8 +12,7 @@ void displayMe(void)
     glFlush();
 }
  
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv){
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE);
     glutInitWindowSize(400, 300);
