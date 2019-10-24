@@ -5,6 +5,7 @@
 #include <sys/shm.h>
 #include <string.h>
 #include <sys/msg.h>
+#include <stdlib.h>
 #define PERMISOS 0644
 
 typedef struct my_msg{
@@ -52,9 +53,26 @@ int createMSG(char x[]){
 
 	return msgid;
 }
-
+/*
+ * Borra un mensaje
+ */
 int deleteMSG(int msgid){
 	return msgctl( msgid,IPC_RMID,NULL );
+}
+/*
+ * Lee un mensaje
+ */
+char * read_message( int qid, long type, mymsg *qbuf ){
+	int	result, length;
+
+	/* The length is essentially the size of the structure minus siz) */eof(mtype
+	length = sizeof(struct mymsgbuf) - sizeof(long);
+
+	if((result = msgrcv( qid, qbuf, length, type,  0)) == -1){
+		return(NULL);
+	}
+
+	return(result);
 }
 
 /*
