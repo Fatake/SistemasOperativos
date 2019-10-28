@@ -15,6 +15,7 @@
 #define EATING 2
 #define True 1
 #define False 0
+#define TAM 10
 
 //Tipos
 typedef int semaforo;
@@ -33,18 +34,30 @@ void comprueba(int i);
  * Pantalla
  */
 void pantalla();
+void reshape(int width,int height);
 
 /*
  * Main
  */
-int main(int argc, char** argv) {
-   glutInit(&argc, argv);                 // Initialize GLUT
-   glutCreateWindow("Filosofos Grafico"); // Create a window with the given title
-   glutInitWindowSize(1000, 1000);   // Set the window's initial width & height
-   glutInitWindowPosition(400, 500); // Position the window's initial top-left corner
-   glutDisplayFunc(pantalla); // Register display callback handler for window re-paint
-   glutMainLoop();           // Enter the infinitely event-processing loop
-   return 0;
+int main(int argc, char* argv[]) {
+	glutInit(&argc, argv);                 // Initialize GLUT
+	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+	glutInitWindowPosition(600, 500); // Position the window's initial top-left corner
+	glutCreateWindow("Filosofos Grafico"); // Create a window with the given title
+
+	glutDisplayFunc(pantalla); // Register display callback handler for window re-paint
+	glutReshapeFunc(reshape);
+	glutMainLoop();           // Enter the infinitely event-processing loop
+
+	return 0;
+}
+
+void reshape(int width,int height){
+	glViewport(0,0,width,height);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(-100,100,-100,100);
+	glMatrixMode(GL_MODELVIEW);
 }
 //
 //Funciones
@@ -53,10 +66,10 @@ int main(int argc, char** argv) {
  * Constructor de la pantalla Grafica
  */
 void pantalla(){
-   glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
-   glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
+	glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer
 
-   //inicializar el estado en pensando
+	//inicializar el estado en pensando
 	for(i = 0; i < N ; i++)
 		estado[i] = 0;
 	//Semaforo de mutex
@@ -64,22 +77,78 @@ void pantalla(){
 	//Semaforos para cada Filosofo
 	for(i = 0; i < N ; i++)
 		sem[i] = creaSemaforo(0,0);
-	
+
 	printf("\nSemaforo mutex : %d\n",mutex);
 	for ( i = 0; i < N; i++)
 		printf("Semaforo numero %d : %d\n",(i+1),sem[i]);
 
 
-   // Draw a Red 1x1 Square centered at origin
-   glBegin(GL_QUADS);              // Each set of 4 vertices form a quad
-      glColor3f(1.0f, 0.0f, 0.0f); // Red
-      glVertex2f(-0.5f, -0.5f);    // x, y
-      glVertex2f( 0.5f, -0.5f);
-      glVertex2f( 0.5f,  0.5f);
-      glVertex2f(-0.5f,  0.5f);
-   glEnd();
+	glPushMatrix();//Rescata el escenario
+	glTranslated(50,-50,0);
+		glBegin(GL_QUADS);//Crea un Cuadrado
+			glColor3f(1.0f, 0.0f, 0.0f);//Color Rojo
+			glVertex2f(-TAM, -TAM);    // x, y
+			glVertex2f( TAM, -TAM);
+			glVertex2f( TAM,  TAM);
+			glVertex2f(-TAM,  TAM);
+		glEnd();
+	glPopMatrix();
 
-   glFlush();  // Render now
+
+	glPushMatrix();
+
+	glTranslated(-50,-50,0);
+
+	glBegin(GL_QUADS);              // Each set of 4 vertices form a quad
+	glColor3f(1.0f, 0.0f, 0.0f); // Red
+	glVertex2f(-TAM, -TAM);    // x, y
+	glVertex2f( TAM, -TAM);
+	glVertex2f( TAM,  TAM);
+	glVertex2f(-TAM,  TAM);
+	glEnd();
+
+	glPopMatrix();
+
+	glPushMatrix();
+
+	glTranslated(-50,50,0);
+
+	glBegin(GL_QUADS);              // Each set of 4 vertices form a quad
+	glColor3f(1.0f, 0.0f, 0.0f); // Red
+	glVertex2f(-TAM, -TAM);    // x, y
+	glVertex2f( TAM, -TAM);
+	glVertex2f( TAM,  TAM);
+	glVertex2f(-TAM,  TAM);
+	glEnd();
+	glPopMatrix();
+
+
+	glPushMatrix();
+
+	glTranslated(50,50,0);
+
+	glBegin(GL_QUADS);              // Each set of 4 vertices form a quad
+	glColor3f(1.0f, 0.0f, 0.0f); // Red
+	glVertex2f(-TAM, -TAM);    // x, y
+	glVertex2f( TAM, -TAM);
+	glVertex2f( TAM,  TAM);
+	glVertex2f(-TAM,  TAM);
+	glEnd();
+
+	glPopMatrix();
+	glPushMatrix();
+
+	glBegin(GL_QUADS);              // Each set of 4 vertices form a quad
+	glColor3f(1.0f, 0.0f, 0.0f); // Red
+	glVertex2f(-TAM, -TAM);    // x, y
+	glVertex2f( TAM, -TAM);
+	glVertex2f( TAM,  TAM);
+	glVertex2f(-TAM,  TAM);
+	glEnd();
+
+	glPopMatrix();
+
+	glFlush();  // Render now
 }
 /*
  * Funcion Filososofo
