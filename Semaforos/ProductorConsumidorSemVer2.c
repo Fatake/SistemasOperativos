@@ -20,14 +20,11 @@ int semmutex, semfull, semempty ;
  */
 int* Prod(int* memo){
 	semDecre(semempty);
-	printf("Decrementa Empry\n\n\n\n");
 	semDecre(semmutex);
-	printf("Decrementa mutex n\n\n\n\n\n\n");
 
 	(*memo) = 1+randomLotoUp(1,50000000,1);
 
 	printf("P: %d| %d \n\n",semctl ( semfull, 0, GETVAL), *memo);
-
 
 	semIncre(semmutex);
 	semIncre(semfull);
