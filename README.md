@@ -5,7 +5,7 @@ Programas creados en el laboratios de la clase de "Sistemas Operativos"
 Lista de programas creados en el lenguaje **C** 
 
 Con propósito de conocer y manejar procesos, hilos y diferentes cosas mas.
--
+Esditando
 
 --------------
 
