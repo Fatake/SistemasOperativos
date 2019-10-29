@@ -2,7 +2,7 @@
 Programas creados en el laboratios de la clase de "Sistemas Operativos"
 
 
-Listado de programas creados Los lenguajes de **C** y **Python**
+Lista de programas creados en el lenguaje **C** 
 
 Con propósito de conocer y manejar procesos, hilos y diferentes cosas mas.
 -
@@ -26,7 +26,7 @@ Con propósito de conocer y manejar procesos, hilos y diferentes cosas mas.
 7. [Practica 7](https://github.com/Fatake/SistemasOperativos)
 
 # Contendio de programas
-1. Bases de datos
-2. Polinomio de direccionamiento
+1. Abrir Tuberias
+2. Semaforos
 
 # [Teoria](https://github.com/Fatake/SistemasOperativos)
