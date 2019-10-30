@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
-
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
