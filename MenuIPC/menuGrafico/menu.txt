@@ -1,0 +1,28 @@
+1. Semáforos
+  1. Crear semáforo
+  2. Operar sobre semáforo
+    1. Escribir
+      1. Escritura única
+      2. Escritura múltiple
+    2. Leer
+      1. Lectura única
+      2. Lectura múltiple
+    3. Operar
+      1. Decrementar
+      2. Incrementar
+      3. Agregar o quitar una cantidad específica
+      4. Decrementar todos
+      5. Incrementar todos
+    4. Regresar
+2. Memoria compartida
+  1. Crear bloque de memoria compartida
+  2. Escribir en memoria compartida
+  3. Leer memoria compartida
+  4. Liberar bloque de memoria compartida
+3. Mensajes
+  1. Crear cola de mensajes
+  2. Enviar mensajes
+  3. Recibir mensaje
+  4. Eliminar cola de mensajes
+4. Salir
+

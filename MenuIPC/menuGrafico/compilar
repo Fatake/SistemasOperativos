@@ -1,0 +1,6 @@
+#!/bin/sh
+
+gcc Menu.c \
+    OperacionesMemoriaCompartida.c OperacionesMensajes.c OperacionesSemaforos.c \
+    Utilerias.c \
+    -o Menu
