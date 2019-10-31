@@ -1,18 +1,27 @@
+<!-- 
+	Transiscion entre redimencion
+--> 
 .tag1 {
-  transition: background-color 1s, border-radius 1s;
-  background-color: dodgerblue;
-  padding: 4px;
-  margin-top: 0px;
-  min-height: 40px;
-  min-width: 40px;
-  font-weight: bold;
+	transition: background-color 1s, border-radius 1s;
+	background-color: dodgerblue;
+	padding: 4px;
+	margin-top: 0px;
+	min-height: 40px;
+	min-width: 40px;
+	font-weight: bold;
 }
 
+<!-- 
+	Borde y color
+--> 
 .tag2 {
-  border-radius: 50% / 20%;
-  background-color: tomato;
+	border-radius: 50% / 20%;
+	background-color: tomato;
 }
 
+<!-- 
+	Para los procesos
+--> 
 .fork {
-  -gtk-icon-transform: translate(0px, -150px) scale(0.15);
+	-gtk-icon-transform: translate(0px, -150px) scale(0.15);
 }
