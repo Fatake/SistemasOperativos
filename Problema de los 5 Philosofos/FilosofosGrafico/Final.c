@@ -60,7 +60,7 @@ static void activate(GtkApplication* app, gpointer user_data) {
 
 	// Cargar estilos
 	GtkCssProvider *cssProvider = gtk_css_provider_new();
-	gtk_css_provider_load_from_path(cssProvider, "Prueba1.css", NULL);
+	gtk_css_provider_load_from_path(cssProvider, "estilos.css", NULL);
 	gtk_style_context_add_provider_for_screen(
 	gdk_screen_get_default(),
 	GTK_STYLE_PROVIDER(cssProvider),
