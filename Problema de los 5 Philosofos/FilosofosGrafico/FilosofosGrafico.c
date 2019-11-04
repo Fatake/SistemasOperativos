@@ -17,7 +17,7 @@
 #define N 5
 
 #define MIN_PENSAR 2
-#define MAX_PENSAR 10
+#define MAX_PENSAR 15
 
 #define MIN_COMER 3
 #define MAX_COMER 15
@@ -25,7 +25,7 @@
 // Constantes y macros
 #define LEFT  ((N + i - 1) % N)
 #define RIGHT ((N + i + 1) % N)
-#define RADIO 180
+#define RADIO 100
 
 #define MUTEX                -1
 #define MUTEX_NOTIFICACIONES -2
@@ -151,7 +151,7 @@ static void activate(GtkApplication* app, gpointer user_data) {
 	//
 	GtkWidget *window = gtk_application_window_new(app);
 	gtk_window_set_title(GTK_WINDOW(window), "Filosofos");
-	gtk_window_set_default_size(GTK_WINDOW(window), 400, 400);
+	gtk_window_set_default_size(GTK_WINDOW(window), 350, 300);
 	GtkWidget *container = gtk_fixed_new();
 	gtk_container_add(GTK_CONTAINER(window), container);
 
@@ -176,7 +176,7 @@ static void activate(GtkApplication* app, gpointer user_data) {
 			sprintf(
 				estilo,
 				"#imagen-%d-%d { -gtk-icon-transform: translate(%dpx, %dpx) scale(%.2f); }",
-			i, j, x, y, escalas[j]);
+				i, j, x, y, escalas[j]);
 
 			imagenes[idx] = gtk_image_new_from_file(nombreImagenes[j]);
 
@@ -339,14 +339,17 @@ void *escucharNotificaciones(void *_) {
 	while (1) {
 		down(MUTEX_NOTIFICACIONES);
 		recibirCambio(nuevoEstado);
-
-		printf("<---Escuchando tuberias--->\n");
+		printf("\n<---Filosfoso--->\n\n");
 		int i;
-		for (i = 0; i < N; i++)
-			printf("%d ", nuevoEstado[i]);
-
+		for (i = 0; i < N; i++){
+			if(nuevoEstado[i] == 0)
+				printf("P ");
+			else if(nuevoEstado[i] == 1)
+				printf("H ");
+			else if(nuevoEstado[i] == 2)
+				printf("C ");
+		}
 		printf("\n");
-
 		gdk_threads_add_idle_full(G_PRIORITY_HIGH_IDLE, aplicarCambios, nuevoEstado, NULL);
 	}
 }
