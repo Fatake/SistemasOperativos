@@ -1,3 +1,2 @@
 #!/bin/sh
-
-gcc Final.c -o Final `pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0`
+gcc FilosofosGrafico.c -o FilosofosGrafico `pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0`

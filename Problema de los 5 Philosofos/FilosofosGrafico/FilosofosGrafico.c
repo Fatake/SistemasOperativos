@@ -1,195 +1,362 @@
-/*
- * Compilacion
- * gcc FilosofosGrafico.c -lGL -lGLU -lglut -o Fil
- */
-#include "ipcfunctions.h"
+#include <math.h>
+#include <pthread.h>
 #include <stdio.h>
-#include <GL/glut.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <unistd.h>
+#include <gtk/gtk.h>
+#include <gdk/gdk.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#include <sys/sem.h>
+#include <sys/shm.h>
+#include <sys/types.h>
 
-//Macros y Definiciones
+// Configuración
 #define N 5
-#define left (N+i-1)%N
-#define right (N+i+1)%N
-#define THINKING 0
-#define HUNGRY 1
-#define EATING 2
-#define True 1
-#define False 0
-#define TAM 10
 
-//Tipos
-typedef int semaforo;
+#define MIN_PENSAR 2
+#define MAX_PENSAR 10
 
-int estado[N];
-semaforo mutex;
-semaforo sem[N];
-int i;
+#define MIN_COMER 3
+#define MAX_COMER 15
 
-void filosofo(int numeroFilosofo);
-void takeForks(int i);
-void putForks(int i);
-void comprueba(int i);
+// Constantes y macros
+#define LEFT  ((N + i - 1) % N)
+#define RIGHT ((N + i + 1) % N)
+#define RADIO 180
+
+#define MUTEX                -1
+#define MUTEX_NOTIFICACIONES -2
+
+#define THINKING  0
+#define HUNGRY    1
+#define EATING    2
 
 /*
- * Pantalla
+ * Variables Globales
  */
-void pantalla();
-void reshape(int width,int height);
+GtkWidget **imagenes;
+int *estado;
+int semidFilosofos, semidMutex, semidMutexNotificaciones;
+int msqid, pipeNotificaciones[2];
+//
+//--------------------Prototipos de funiones--------------------------//
+//
+//--------------------Funciones de aplicacion-------------------------//
+void actualizarVisualizacion(int nuevoEstado[]);
+static void activate(GtkApplication* app, gpointer user_data);
+void inicializarAplicacion(int argc, char **argv);
+//-------------------------Filosofos----------------------------------//
+void filosofo(int i);
+void tomarTenedores(int i);
+void dejarTenedores(int i);
+void prueba(int i);
+void pensar();
+void comer();
+//--------------------Funciones de Semaforos--------------------------//
 
-/*
+void up(int semaforo);
+void down(int semaforo);
+//-----------------------Comunicacion entre tuberias------------------//
+void notificarCambio();
+void recibirCambio(int estado[N]);
+void *escucharNotificaciones(void *_);
+int aplicarCambios(gpointer datos);
+
+
+
+//-------------------------------Main---------------------------------//
+/**
  * Main
  */
-int main(int argc, char* argv[]) {
-	glutInit(&argc, argv);                 // Initialize GLUT
-	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-	glutInitWindowPosition(600, 500); // Position the window's initial top-left corner
-	glutCreateWindow("Filosofos Grafico"); // Create a window with the given title
+int main (int argc, char **argv) {
+	union semun {
+		int val;
+		struct semid_ds *buf;
+		unsigned short *array;
+		struct seminfo *_buf;
+	};  
 
-	glutDisplayFunc(pantalla); // Register display callback handler for window re-paint
-	glutReshapeFunc(reshape);
-	glutMainLoop();           // Enter the infinitely event-processing loop
+	int i, hijo = 0;
+	unsigned short iniciales[N];
+	union semun operaciones;
 
-	return 0;
-}
-
-void reshape(int width,int height){
-	glViewport(0,0,width,height);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluOrtho2D(-100,100,-100,100);
-	glMatrixMode(GL_MODELVIEW);
-}
-//
-//Funciones
-//
-/*
- * Constructor de la pantalla Grafica
- */
-void pantalla(){
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
-	glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer
-
-	//inicializar el estado en pensando
-	for(i = 0; i < N ; i++)
-		estado[i] = 0;
-	//Semaforo de mutex
-	mutex = creaSemaforo(0,1);
-	//Semaforos para cada Filosofo
-	for(i = 0; i < N ; i++)
-		sem[i] = creaSemaforo(0,0);
-
-	printf("\nSemaforo mutex : %d\n",mutex);
-	for ( i = 0; i < N; i++)
-		printf("Semaforo numero %d : %d\n",(i+1),sem[i]);
-
-
-	glPushMatrix();//Rescata el escenario
-	glTranslated(50,-50,0);
-		glBegin(GL_QUADS);//Crea un Cuadrado
-			glColor3f(1.0f, 0.0f, 0.0f);//Color Rojo
-			glVertex2f(-TAM, -TAM);    // x, y
-			glVertex2f( TAM, -TAM);
-			glVertex2f( TAM,  TAM);
-			glVertex2f(-TAM,  TAM);
-		glEnd();
-	glPopMatrix();
-
-
-	glPushMatrix();
-
-	glTranslated(-50,-50,0);
-
-	glBegin(GL_QUADS);              // Each set of 4 vertices form a quad
-	glColor3f(1.0f, 0.0f, 0.0f); // Red
-	glVertex2f(-TAM, -TAM);    // x, y
-	glVertex2f( TAM, -TAM);
-	glVertex2f( TAM,  TAM);
-	glVertex2f(-TAM,  TAM);
-	glEnd();
-
-	glPopMatrix();
-
-	glPushMatrix();
-
-	glTranslated(-50,50,0);
-
-	glBegin(GL_QUADS);              // Each set of 4 vertices form a quad
-	glColor3f(1.0f, 0.0f, 0.0f); // Red
-	glVertex2f(-TAM, -TAM);    // x, y
-	glVertex2f( TAM, -TAM);
-	glVertex2f( TAM,  TAM);
-	glVertex2f(-TAM,  TAM);
-	glEnd();
-	glPopMatrix();
-
-
-	glPushMatrix();
-
-	glTranslated(50,50,0);
-
-	glBegin(GL_QUADS);              // Each set of 4 vertices form a quad
-	glColor3f(1.0f, 0.0f, 0.0f); // Red
-	glVertex2f(-TAM, -TAM);    // x, y
-	glVertex2f( TAM, -TAM);
-	glVertex2f( TAM,  TAM);
-	glVertex2f(-TAM,  TAM);
-	glEnd();
-
-	glPopMatrix();
-	glPushMatrix();
-
-	glBegin(GL_QUADS);              // Each set of 4 vertices form a quad
-	glColor3f(1.0f, 0.0f, 0.0f); // Red
-	glVertex2f(-TAM, -TAM);    // x, y
-	glVertex2f( TAM, -TAM);
-	glVertex2f( TAM,  TAM);
-	glVertex2f(-TAM,  TAM);
-	glEnd();
-
-	glPopMatrix();
-
-	glFlush();  // Render now
-}
-/*
- * Funcion Filososofo
- */
-void filosofo(int numeroFilosofo){
-	while (True){
-		printf("\nPensando----\n");
-		takeForks(numeroFilosofo);
-		printf("\nComiendo----\n");
-		putForks(numeroFilosofo);
+	estado = shmat(shmget(IPC_PRIVATE, sizeof(int) * N, IPC_CREAT | 0666), 0, 0);
+	for (i = 0; i < N; i++) {
+		estado[i] = THINKING;
+		iniciales[i] = 1;
 	}
 
+	semidFilosofos = semget(IPC_PRIVATE, N, IPC_CREAT | 0666);
+	semidMutex = semget(IPC_PRIVATE, 1, IPC_CREAT | 0666);
+	semidMutexNotificaciones = semget(IPC_PRIVATE, 1, IPC_CREAT | 0666);
+	msqid = msgget(IPC_PRIVATE, IPC_CREAT | 0666);
+
+	operaciones.array = iniciales;
+	semctl(semidFilosofos, 0, SETVAL, operaciones);
+
+	operaciones.val = 1;
+	semctl(semidMutex, 0, SETVAL, operaciones);
+
+	operaciones.val = 1;
+	semctl(semidMutexNotificaciones, 0, SETVAL, operaciones);
+
+	pipe(pipeNotificaciones);
+
+	for (i = 0; i < N; i++) {
+		if (fork() == 0) {
+			hijo = 1;
+			close(pipeNotificaciones[0]);
+			filosofo(i);
+		}
+	}
+	//Crear Hilos
+	if (!hijo) {
+		pthread_t hiloNotificaciones; 
+		pthread_create(&hiloNotificaciones, NULL, escucharNotificaciones, NULL);
+		inicializarAplicacion(argc, argv);
+	}
+}
+//--------------------Funciones de aplicacion-------------------------//
+/*
+ * Actualiza La imagen 
+ */
+void actualizarVisualizacion(int nuevoEstado[]) {
+	int i, j, idx;
+	for (i = 0; i < N; i++)
+		for (j = 0; j < 3; j++) {
+			idx = i * 3 + j;
+
+			if (nuevoEstado[i] == j)
+				gtk_widget_set_opacity(imagenes[idx], 1);
+			else 
+				gtk_widget_set_opacity(imagenes[idx], 0);
+		}
 }
 /*
- * Funcion Tomar los Tenedores
+ * Eschucador de aplicacion
  */
-void takeForks(int i){
-	semDecre(mutex);//Down
-	estado[i] = HUNGRY;
-	comprueba(i);
-	semIncre(mutex);//Up
-	semDecre(sem[i]);//Down
+static void activate(GtkApplication* app, gpointer user_data) {
+	int i, j;
+	GtkCssProvider *cssProvider = gtk_css_provider_new();
+	gtk_css_provider_load_from_path(cssProvider, "estilos.css", NULL);
+	gtk_style_context_add_provider_for_screen(
+	gdk_screen_get_default(),
+	GTK_STYLE_PROVIDER(cssProvider),
+	GTK_STYLE_PROVIDER_PRIORITY_USER);
+	//
+	//Crea Ventana principal
+	//
+	GtkWidget *window = gtk_application_window_new(app);
+	gtk_window_set_title(GTK_WINDOW(window), "Filosofos");
+	gtk_window_set_default_size(GTK_WINDOW(window), 400, 400);
+	GtkWidget *container = gtk_fixed_new();
+	gtk_container_add(GTK_CONTAINER(window), container);
+
+	//
+	//Calculo del tamaño de imagenes
+	//
+	double angulo = 2.0 * G_PI / (double) N;
+	float escalas[] = { 0.18, 0.25, 0.15 };
+	char *nombreImagenes[] = { "pensando.gif", "hambriento.gif", "comiendo.gif" };
+
+	char idImagen[15];
+	char estilo[200];
+
+	imagenes = malloc(sizeof(GtkWidget *) * N * 3);
+	for (i = 0; i < N; i++) {
+		for (j = 0; j < 3; j++) {
+			int idx = i * 3 + j;
+			int x = (int) (cos(angulo * i - G_PI_2) * RADIO);
+			int y = (int) (sin(angulo * i - G_PI_2) * RADIO);
+
+			sprintf(idImagen, "imagen-%d-%d", i, j);
+			sprintf(
+				estilo,
+				"#imagen-%d-%d { -gtk-icon-transform: translate(%dpx, %dpx) scale(%.2f); }",
+			i, j, x, y, escalas[j]);
+
+			imagenes[idx] = gtk_image_new_from_file(nombreImagenes[j]);
+
+			gtk_widget_set_name(imagenes[idx], idImagen);
+
+			GtkCssProvider *proveedor = gtk_css_provider_new();
+			gtk_css_provider_load_from_data(proveedor, estilo, strlen(estilo), NULL);
+			gtk_style_context_add_provider_for_screen(
+			gdk_screen_get_default(),
+			GTK_STYLE_PROVIDER(proveedor),
+			GTK_STYLE_PROVIDER_PRIORITY_USER);
+
+			gtk_fixed_put(GTK_FIXED(container), imagenes[idx], 0, 0);
+		}
+	}
+	int estadoInicial[N];
+	for (i = 0; i < N; i++)
+		estadoInicial[i] = THINKING;
+
+	actualizarVisualizacion(estadoInicial);
+	gtk_widget_show_all(window);
 }
 /*
- * Funcion Dejar los tenedores
+ * Constructor de apicacion
  */
-void putForks(int i){
-	semDecre(mutex);//Down
-	estado[i] = THINKING;
-	comprueba(left);
-	comprueba(right);
-	semIncre(mutex);//Up
+void inicializarAplicacion(int argc, char **argv) {
+	GtkApplication *app;
+	app = gtk_application_new(
+		"Filosofos.Fatake", 
+		G_APPLICATION_FLAGS_NONE);
+	g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
+	g_application_run(G_APPLICATION(app), argc, argv);
+	g_object_unref(app);
+}
+//-------------------------Filosofos----------------------------------//
+//
+//Filosofos
+//
+void filosofo(int i) {
+	while (1) {
+		pensar();
+		tomarTenedores(i);
+		comer();
+		dejarTenedores(i);
+	}
+}
+//
+// Tomar tenedores
+//
+void tomarTenedores(int i) {
+	down(MUTEX);
+		estado[i] = HUNGRY;
+		notificarCambio();
+		prueba(i);
+	up(MUTEX);
+	down(i);
+}
+//
+// Deja tenedores
+//
+void dejarTenedores(int i) {
+	down(MUTEX);
+		estado[i] = THINKING;
+		notificarCambio();
+		prueba(LEFT);
+		prueba(RIGHT);
+	up(MUTEX);
 }
 /*
- * Funcion Comprueba
+ * Funcion que checa los filosofos de alado
  */
-void comprueba(int i){
-	if(estado[i] == HUNGRY &&
-	estado[left] != EATING &&
-	estado[right] != EATING){
+void prueba(int i) {
+	if ((estado[i] == HUNGRY) &&
+		(estado[LEFT] != EATING) &&
+		(estado[RIGHT] != EATING)) {
 		estado[i] = EATING;
-		semIncre(sem[i]);
+		notificarCambio();
+		up(i);
 	}
+}
+//
+// Funcion Pensar
+//
+void pensar() {
+	int espera = MIN_PENSAR + rand() % (MAX_PENSAR - MIN_PENSAR + 1);
+	time_t fin = time(NULL) + espera;
+	while (time(NULL) < fin);
+}
+//
+//Funcion comer
+//
+void comer() {
+	int espera = MIN_COMER + rand() % (MAX_COMER - MIN_COMER + 1);
+	time_t fin = time(NULL) + espera;
+
+	while (time(NULL) < fin);
+}
+//--------------------Funciones de Semaforos-------------------------//
+/*
+ * Funcion Up recibe el un semid y 
+ * incrementa en 1 su valor
+ */
+void up(int semaforo) {
+	struct sembuf op = { 
+		.sem_num = 0, 
+		.sem_op = 1, 
+		.sem_flg = 0 
+	};
+
+	if (semaforo == MUTEX)
+		semop(semidMutex, &op, 1);
+	else if (semaforo == MUTEX_NOTIFICACIONES)
+		semop(semidMutexNotificaciones, &op, 1);
+	else {
+		op.sem_num = semaforo;
+		semop(semidFilosofos, &op, 1);
+	}
+}
+/*
+ * Funcion down recibe un semid
+ * y decrementa en 1 su valor o lo bloquea
+ */
+void down(int semaforo) {
+	struct sembuf op = { 
+		.sem_num = 0, 
+		.sem_op = -1, 
+		.sem_flg = 0 
+	};
+
+	if (semaforo == MUTEX)
+		semop(semidMutex, &op, 1);
+
+	else if (semaforo == MUTEX_NOTIFICACIONES)
+		semop(semidMutexNotificaciones, &op, 1);
+
+	else {
+		op.sem_num = semaforo;
+		semop(semidFilosofos, &op, 1);
+	}
+}
+
+//-----------------------Comunicacion entre tuberias------------------//
+void notificarCambio() {
+	if (write(pipeNotificaciones[1], estado, sizeof(int) * N) < 0) {
+		printf("Error: No se envio la notificacion u.u\n");
+		exit(-1);
+	}
+}
+void recibirCambio(int estado[N]) {
+	if (read(pipeNotificaciones[0], estado, sizeof(int) * N) < 0) {
+		printf("ERROR: No se pudo recibir una notificacion u.u \n");
+		exit(-1);
+	}
+}
+//
+// Escucha de cambios en la tuberia
+//
+void *escucharNotificaciones(void *_) {
+	int nuevoEstado[N];
+	while (1) {
+		down(MUTEX_NOTIFICACIONES);
+		recibirCambio(nuevoEstado);
+
+		printf("<---Escuchando tuberias--->\n");
+		int i;
+		for (i = 0; i < N; i++)
+			printf("%d ", nuevoEstado[i]);
+
+		printf("\n");
+
+		gdk_threads_add_idle_full(G_PRIORITY_HIGH_IDLE, aplicarCambios, nuevoEstado, NULL);
+	}
+}
+//
+// Envia datos al actualizador de la pantalla
+//
+int aplicarCambios(gpointer datos) {
+	int nuevoEstado[N];
+	memcpy(nuevoEstado, datos, sizeof(int) * N);
+	up(MUTEX_NOTIFICACIONES);
+	actualizarVisualizacion(nuevoEstado);
+	return 0;
 }
