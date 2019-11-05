@@ -25,6 +25,8 @@
 // Constantes y macros
 #define LEFT  ((N + i - 1) % N)
 #define RIGHT ((N + i + 1) % N)
+#define limpia() printf("\033[H\033[J")
+
 #define RADIO 100
 
 #define MUTEX                -1
@@ -339,6 +341,7 @@ void *escucharNotificaciones(void *_) {
 	while (1) {
 		down(MUTEX_NOTIFICACIONES);
 		recibirCambio(nuevoEstado);
+		limpia();
 		printf("\n<---Filosfoso--->\n\n");
 		int i;
 		for (i = 0; i < N; i++){
