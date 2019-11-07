@@ -22,15 +22,17 @@ int main(int argc, char **argv){
 					if(aux > 0){
 						printf("Memoria Compartida Creada con el shmid: %d ",aux);
 						printf("con los Permisos %d\n",atoi(argv[5]));
-					}else
-						printf("Error al Crear la Memoria Compartida");
-				}else{
+						return 0;
+					}
+				}else if (argc <= 4 ){
 					aux = createSHM(atoi(argv[3]));
-					if(aux > 0)
-						printf("Memoria Compartida Creada con el shmid: %d",aux);
-					else
-						printf("Error al Crear la Memoria Compartida");
+					if(aux > 0){
+						printf("Memoria Compartida Creada con el shmid: %d\n",aux);
+						return 0;
+					}
 				}
+				printf("Error al Crear la Memoria Compartida faltan argumentos -p valor\n");
+				return -1;
 				
 			}else if(!strcmp(argv[2],"-d")){//Borrar
 				if(!deleteSHM(atoi(argv[3])))
