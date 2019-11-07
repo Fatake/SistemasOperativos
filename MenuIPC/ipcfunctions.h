@@ -24,6 +24,15 @@ int createSHM(int size){
 }
 
 /*
+ * Crea una memoria compartida dependiedo del tamanio dado con unos permisos
+ * Retorna un -1 si no se completo la accion
+ * Rterona un numero positivo si se completo <shmid>
+ */
+int createSHMPerm(int size, int perm){
+	return shmget( 0,sizeof(size),IPC_PRIVATE|IPC_CREAT|perm );
+}
+
+/*
  * Elimina una memoria compartida con un shmid de parametro
  */
 int deleteSHM(int shmid){

@@ -12,22 +12,35 @@ int main(int argc, char **argv){
 	char auxc[50], *auxc2;
 
 	if(argc >= 4){
+		//
 		//Memoria
-		if(!strcmp(argv[1],"-m")){
+		//
+		if( !strcmp( argv[1],"-m" ) ){
 			if(!strcmp(argv[2],"-c")){//Crear Memoria
-				aux = createSHM(atoi(argv[3]));
-				if(aux > 0)
-					printf("Memoria Compartida Creada con el shmid: %d",aux);
-				else
-					printf("Error al Crear la Memoria Compartida");
+				if (argc > 5){
+					aux = createSHMPerm( atoi(argv[3]), atoi(argv[5]) );
+					if(aux > 0){
+						printf("Memoria Compartida Creada con el shmid: %d ",aux);
+						printf("con los Permisos %d\n",atoi(argv[5]));
+					}else
+						printf("Error al Crear la Memoria Compartida");
+				}else{
+					aux = createSHM(atoi(argv[3]));
+					if(aux > 0)
+						printf("Memoria Compartida Creada con el shmid: %d",aux);
+					else
+						printf("Error al Crear la Memoria Compartida");
+				}
+				
 			}else if(!strcmp(argv[2],"-d")){//Borrar
 				if(!deleteSHM(atoi(argv[3])))
 					printf("Memoria con shmid %d Borrada\n",atoi(argv[3]));
 				else
 					printf("Error al Borrar la Memoria");
 			}
-
+		//
 		//Semaforos
+		//
 		}else if(!strcmp(argv[1],"-s")){
 			if(!strcmp(argv[2],"-c")){//Crear Semáforo
 				if( argc > 4 && atoi(argv[3] ) > 0 ){
@@ -59,8 +72,9 @@ int main(int argc, char **argv){
 				else
 					printf("Error al Borrar El semaforo con semid: %d",atoi(argv[3]));
 			}
-
+		//
 		//Mensajes
+		//
 		}else if( !strcmp(argv[1],"-w" )){
 
 			if( !strcmp(argv[2],"-c" )){//Crear
@@ -90,12 +104,17 @@ int main(int argc, char **argv){
 			
 		}else
 			printf("Parametro no encontrado\nUtilice --help Para obtener ayuda");
+	//
+	//--Help
+	//
 	}else{
 		if(argc < 4){
 			if(argc > 1 && !strcmp(argv[1],"--help")){
 				printf("\tPrograma que crear recursos IPC \n\n");
 				printf("Parametros admitidos:\n\n");
+
 				printf("-m <Memoria Comparitda> -c <Crear> <Int:Tamanio>\n");
+				printf("-m <Memoria Comparitda> -c <Crear> <Int:Tamanio> -p [<permisos> <Int:Permisos>]\n");
 				printf("-m <Memoria Comparitda> -d <Borrar> <Int:shmid>\n\n");
 
 				printf("-s <Semaforo> -c <Crear> <Int:Cantidad> <Int:Valor Inicial>\n");
@@ -105,6 +124,7 @@ int main(int argc, char **argv){
 				printf("-w <Mensajes> -c <Crear> <Char:Mensaje> **\"Cadena entre comillas\"\n");
 				printf("-w <Mensajes> -d <Borrar> <Int: msgid>\n");
 				printf("-w <Mensajes> -r <Leere> <Int: msgid>\n");
+
 				printf("\n\nEjemplo:\n");
 				printf("./ipc -s -c 3 0\n");
 				printf("Creara 3 semaforos con valor 0\n");
