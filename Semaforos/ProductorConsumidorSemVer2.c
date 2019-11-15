@@ -78,7 +78,7 @@ int main(int argc, char **argv){
 		}else{
 			srand(time(0)+2500);
 			*Mem = Prod(Mem);
-			for (int j = 0; j<randomLotoUp(1,50000000,1000);j++)
+			for (int j = 0; j< randomLotoUp(1,50000000,1000);j++)
 				d = j*randomLotoUp(1,50000000,1);
 		}
 

@@ -14,7 +14,7 @@
 //
 //Constantes
 //
-#define N 20
+#define N 5
 
 #define MIN_PRODUCTOR 1
 #define MAX_PRODUCTOR 1
@@ -145,8 +145,8 @@ void down(short semaforo) {
 	struct sembuf down = {semaforo, -1, 0};
 
 	if (semop(semid, &down, 1) < 0) {
-	printf("No se pudo decrementar el semáforo.\n");
-	_exit(-1);
+		printf("No se pudo decrementar el semáforo.\n");
+		_exit(-1);
 	}
 }
 
