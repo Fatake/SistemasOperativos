@@ -1,0 +1,41 @@
+Instrucciones para ejecución del ejemplo servidor/cliente
+
+En los ficheros adjuntos hay un pequeño programa Servidor y un Cliente.
+Lo único que hacen es establecer conexión entre ellos y pasarse las
+cadenas de texto "hola" y "adios". Sirve como ejemplo básico de cómo
+conectar servidor y cliente y de como transmitir datos del uno al otro.
+
+Para ejecutar los programas en entorno linux, hay que seguir los 
+siguientes pasos:
+
+
+1. Con permiso de root editar el fichero /etc/services y añadir una linea,
+del mismo estilo de las que ya hay, que ponga
+
+cpp_java    tcp/15557
+
+
+siendo 15557 cualquier numero que no exista ya en el fichero y que sea
+entre 5000 y 65635.
+
+2. Asegurarse que en el fichero /etc/hosts hay una linea en la que aparece 
+el nombre "localhost" y la direccion IP 127.0.0.1. Normalmente asi sera.
+
+3. Copiar todos los ficheros en un directorio de linux.
+
+4. En el directorio donde hemos copiado los ficheros, hacer 
+
+$ make
+
+Se generara un Servidor y un Cliente
+
+Desde una ventana, arrancar el Servidor
+
+$ ./Servidor
+
+Desde otra, arrancar el Cliente
+
+$ ./Cliente
+
+Veremos como cada programa escribe en pantalla la cadena que recibe del
+otro.
