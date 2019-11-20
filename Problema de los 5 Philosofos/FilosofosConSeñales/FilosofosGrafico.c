@@ -41,6 +41,7 @@
  * Variables Globales
  */
 GtkWidget **imagenes;
+GtkWidget *window;
 int *estado;
 int semidFilosofos, semidMutex, semidMutexNotificaciones;
 int msqid, pipeNotificaciones[2];
@@ -138,7 +139,6 @@ void actualizarVisualizacion(int nuevoEstado[]) {
 	for (i = 0; i < N; i++)
 		for (j = 0; j < 3; j++) {
 			idx = i * 3 + j;
-
 			if (nuevoEstado[i] == j)
 				gtk_widget_set_opacity(imagenes[idx], 1);
 			else 
@@ -160,9 +160,12 @@ static void activate(GtkApplication* app, gpointer user_data) {
 	//
 	//Crea Ventana principal
 	//
-	GtkWidget *window = gtk_application_window_new(app);
+	window = gtk_application_window_new(app);
 	gtk_window_set_title(GTK_WINDOW(window), "Filosofos");
 	gtk_window_set_default_size(GTK_WINDOW(window), 350, 300);
+	//
+	//Contenedor
+	//
 	GtkWidget *container = gtk_fixed_new();
 	gtk_container_add(GTK_CONTAINER(window), container);
 
@@ -208,7 +211,6 @@ static void activate(GtkApplication* app, gpointer user_data) {
 		estadoInicial[i] = THINKING;
 
 	actualizarVisualizacion(estadoInicial);
-	gtk_widget_show_all(window);
 }
 /*
  * Constructor de apicacion
@@ -377,5 +379,6 @@ int aplicarCambios(gpointer datos) {
 }
 //<---------------------------------Señales-------------------------------------->//
 void signalFuncion(int signal){
-    printf("\n\n\nPrecionaste ctrl c\n\n\n");
+	printf("\n\n\nCambiando a Modo Grafico\n\n\n");
+	gtk_widget_show_all(window);
 }
