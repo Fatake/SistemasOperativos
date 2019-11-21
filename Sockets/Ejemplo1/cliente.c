@@ -35,10 +35,12 @@ int main(int argc, char *argv[]){
 		exit(EXIT_FAILURE);
 	}
 
-	/* getaddrinfo() returns a list of address structures.
+	/* 
+		getaddrinfo() returns a list of address structures.
 		Try each address until we successfully connect(2).
 		If socket(2) (or connect(2)) fails, we (close the socket
-		and) try the next address. */
+		and) try the next address. .
+	*/
 
 	for (rp = result; rp != NULL; rp = rp->ai_next) {
 		sfd = socket(rp->ai_family, rp->ai_socktype,
@@ -53,7 +55,7 @@ int main(int argc, char *argv[]){
 	}
 
 	if (rp == NULL) {               /* No address succeeded */
-		fprintf(stderr, "Could not connect\n");
+		fprintf(stderr, "No e pudo conectar\n");
 		exit(EXIT_FAILURE);
 	}
 
@@ -79,11 +81,11 @@ int main(int argc, char *argv[]){
 
 		nread = read(sfd, buf, BUF_SIZE);
 		if (nread == -1) {
-			perror("read");
+			perror("Error en lectura");
 			exit(EXIT_FAILURE);
 		}
 
-		printf("Received %zd bytes: %s\n", nread, buf);
+		printf("Recibiendo %zd bytes: %s\n", nread, buf);
 	}
 
 	exit(EXIT_SUCCESS);

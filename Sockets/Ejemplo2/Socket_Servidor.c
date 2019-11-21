@@ -90,8 +90,7 @@ int Acepta_Conexion_Cliente (int Descriptor){
 * Se pasa como parametro el nombre del servicio. Debe estar dado
 * de alta en el fichero /etc/services
 */
-int Abre_Socket_Inet (char *Servicio)
-{
+int Abre_Socket_Inet (char *Servicio){
 	struct sockaddr_in Direccion;
 	struct sockaddr Cliente;
 	socklen_t Longitud_Cliente;
@@ -131,8 +130,7 @@ int Abre_Socket_Inet (char *Servicio)
 	/*
 	* Se avisa al sistema que comience a atender llamadas de clientes
 	*/
-	if (listen (Descriptor, 1) == -1)
-	{
+	if (listen (Descriptor, 1) == -1){
 		close (Descriptor);
 		return -1;
 	}
