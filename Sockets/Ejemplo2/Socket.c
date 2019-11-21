@@ -5,8 +5,6 @@
 #include <errno.h>
 #include <stdio.h>
 
-
-
 /*
 * Lee datos del socket. Supone que se le pasa un buffer con hueco 
 *	suficiente para los datos. Devuelve el numero de bytes leidos o
