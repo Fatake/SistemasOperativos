@@ -6,7 +6,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 
-#define BUF_SIZE 500
+#define TAMANIOBUFFER 500
 
 int main(int argc, char *argv[]){
 	struct addrinfo hints;
@@ -15,7 +15,7 @@ int main(int argc, char *argv[]){
 	struct sockaddr_storage peer_addr;
 	socklen_t peer_addr_len;
 	ssize_t nread;
-	char buf[BUF_SIZE];
+	char buf[TAMANIOBUFFER];
 
 	if (argc != 2) {
 		fprintf(stderr, "Uso: %s Puerto\n", argv[0]);
@@ -43,8 +43,7 @@ int main(int argc, char *argv[]){
 		and) try the next address. */
 
 	for (rp = result; rp != NULL; rp = rp->ai_next) {
-		sfd = socket(rp->ai_family, rp->ai_socktype,
-				rp->ai_protocol);
+		sfd = socket( rp->ai_family, rp->ai_socktype, rp->ai_protocol );
 		if (sfd == -1)
 			continue;
 
@@ -65,7 +64,7 @@ int main(int argc, char *argv[]){
 
 	for (;;) {
 		peer_addr_len = sizeof(struct sockaddr_storage);
-		nread = recvfrom(sfd, buf, BUF_SIZE, 0,
+		nread = recvfrom(sfd, buf, TAMANIOBUFFER, 0,
 				(struct sockaddr *) &peer_addr, &peer_addr_len);
 		if (nread == -1)
 			continue;               /* Ignore failed request */

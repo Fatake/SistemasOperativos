@@ -12,9 +12,10 @@
 #define PUERTO 55556
 /* s es el descriptor del socket */
 /* cs es el descriptor del socket que regresa la funcion accept */
-int cs;
 int s;
+int cs;
 
+int server();
 //
 //Main
 //
@@ -24,10 +25,12 @@ int main(){
     s = socket(AF_INET,SOCK_STREAM,0);
     /* Se asigna a los diferentes campos de la variable local para
     que el servidor pueda recibir solicitud de conexiones */
-    local.sin_family=AF_INET;
-    local.sin_port=htons(PUERTO);
-    local.sin_addr.s_addr=INADDR_ANY;
-    /* Se amarra el socket a una direcci&oacute;n */
+
+    local.sin_family = AF_INET;
+    local.sin_port = htons(PUERTO);
+    local.sin_addr.s_addr = INADDR_ANY;
+    /* Se amarra el socket a una direccion */
+
     bind (s, (struct sockaddr *) &local, sizeof(local));
     /* Se crea la cola de espera */
     listen (s, 5);
@@ -40,7 +43,10 @@ int main(){
     }
     return 1;
 }
-    /* Esta es la funcion que atiende al proceso cliente */
+    
+/* 
+ * Esta es la funcion que atiende al proceso cliente
+ */
 int server(){
     int t;
     char buff[255];

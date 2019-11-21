@@ -15,18 +15,20 @@ int main(){
     struct hostent *host; /* Estructura para obtener la
     direccion IP del servidor */
 
-    s=socket (AF_INET, SOCK_STREAM,0); /* Creacion del socket */
-    host=gethostbyname("148.228.20.86"); /* Obtencion de la
+    s = socket (AF_INET, SOCK_STREAM,0); /* Creacion del socket */
+    host = gethostbyname("127.0.0.1"); /* Obtencion de la
     dir. IP del servidor */
+
     bcopy (host->h_addr, &server_info.sin_addr,host->h_length);
-    server_info.sin_family=AF_INET;
-    server_info.sin_port=htons (PUERTO);
+    server_info.sin_family = AF_INET;
+    server_info.sin_port = htons (PUERTO);
     /* Se establece la conexi&oacute;n del cliente y el servidor */
+
     connect (s, (struct sockaddr *) &server_info, sizeof(server_info));
     /* Escritura del mensaje al servidor */
+
     write (s, "Hola Bety como estas!", 21);
     /* Se imprime el buffer en la salida estandar */
     close (s); /* Se cierra el socket */
     return 1;
 }
-/* Termina el programa cliente */
