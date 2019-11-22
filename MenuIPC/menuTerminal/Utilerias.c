@@ -1,6 +1,8 @@
-#include "Utilerias.h"
 #include <stdio.h>
 #include <stdlib.h>
+
+#define True 1
+#define False 0
 
 int obtenerOpcion() {
   int opcion; 
