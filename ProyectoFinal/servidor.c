@@ -270,9 +270,11 @@ int iniciaServidor(Canciones *inicio){
 		printf("No se puede escuchar por el puerto\n");
 		exit(EXIT_FAILURE);
 	}
-
+	
 	do{
+		printf("\n\n\n");
 		int connections = acceptarConeccion(SocketDescriptor);
+		printf("Coneccion entrante\n");
 		if (connections == -1){
 			printf("Peticion entrante con error...\n");
 		}else{//Acciones

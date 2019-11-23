@@ -14,6 +14,7 @@
 #include <string.h>
 #include <time.h>
 #include <sys/time.h>
+#include "Utilerias.h"
 
 
 int sd,op,r,ban1=1, ban2=1,ban3=1,ban4=1, ban5=1,var=5,res;
@@ -44,13 +45,13 @@ void main(void){
 	strftime(time_string, sizeof(time_string), "%d/%m /%Y  %H:%M:%S" , ptm);
 	
 	while(1){
-	
+		
 		sd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		bzero((char *)&server_addr, sizeof(server_addr));
-		hp = gethostbyname ("192.168.43.8");
+		hp = gethostbyname ("127.0.0.1");
 		memcpy (&(server_addr.sin_addr), hp->h_addr, hp->h_length);
 		server_addr.sin_family = AF_INET;
-		server_addr.sin_port = 4200;
+		server_addr.sin_port = 7200;
 
 		printf("\nElija una opcion\n");
 		printf(" 1. Listar los archivos del servidor\n ");
@@ -59,8 +60,10 @@ void main(void){
 		printf("4. Enviar una cadena al servidor\n");
 		printf(" 5. Desconectar al servidor\n ");
 		printf("6. Mostrar las estadisticas de la conexión\n");
-		printf(" 0. Salir\n");
+		printf("<-------------------------------------->\n");
+		printf(" 0. Salir\n-> ");
 		scanf("%d",&op);
+		limpia();
 
 		switch(op){ 
 			case 1:
