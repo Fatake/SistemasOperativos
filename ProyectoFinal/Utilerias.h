@@ -5,19 +5,19 @@
 #define False 0
 
 int obtenerOpcion() {
-  int opcion;
-  printf("\nOpción: \n->");
-  scanf("%d%*c", &opcion);
-  return opcion;
+	int opcion;
+	printf("\nOpción: \n->");
+	scanf("%d%*c", &opcion);
+	return opcion;
 }
 
 void limpia() {
-  system("clear");
+	system("clear");
 }
 
 void esperar() {
-  printf("\n<------------------------------>\n");
-  printf("\nPresione enter para continuar...");
-  scanf("%*c");
-  printf("\n");
+	printf("\n<------------------------------>\n");
+	printf("\nPresione enter para continuar...");
+	scanf("%*c");
+	printf("\n");
 }
