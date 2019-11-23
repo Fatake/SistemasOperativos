@@ -6,7 +6,6 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <sys/stat.h>
-#include <stdbool.h>
 #include <dirent.h>
 #include <time.h>
 #include <sys/sysmacros.h>
@@ -25,7 +24,11 @@ typedef struct canciones{
 	struct canciones *sig;
 }Canciones;
 //
-//<----------------Prototipos----------------->//
+//
+//
+int connections;
+//
+//<------------------------------------Prototipos-------------------------------->//
 //
 int menu();
 Canciones *nele();
@@ -33,7 +36,12 @@ int agregaCanciones(Canciones **inicio,Canciones **final, char* nombre);
 int muestraCanciones(Canciones *inicio);
 int borraCancion(Canciones **inicio,Canciones **final, char* cancion);
 int leeCancionesDirectorio(Canciones **inicio, Canciones **final);
+
+
+
 int iniciaServidor(Canciones *inicio);
+int enviaListaCanciones(Canciones *inicio, int SocketConneccion);
+int enviaCancion(Canciones *inicio,int SocketConneccion, char* nombre);
 
 /*
  * Main
@@ -48,13 +56,12 @@ int main(int argc, char **argv){
 	if(muestraCanciones(inicio) == -1){
 		exit(EXIT_FAILURE);
 	}
-	//<---------------------------------Inicio---------------------------------->//
 	do{
 		opcion = menu();
 		limpia();
 		switch(opcion){
 			case 1://Mostar Canciones
-				printf("Iniciando servidor...");
+				printf("Iniciando servidor...\n");
 				iniciaServidor(inicio);
 			break;
 
@@ -67,7 +74,7 @@ int main(int argc, char **argv){
 	printf("Saliendo...\n");
 	return 0;
 }
-//<-------------------------------Funciones-------------------------------------->//
+//<----------------------Funciones_de_lista_de_Canciones------------------------->//
 /*
  * Menu
  */
@@ -211,24 +218,77 @@ int leeCancionesDirectorio(Canciones **inicio, Canciones **final){
 	closedir (dir);
 	return cantidad;
 }
+
+
+//<-------------------------------Funcione_de_servidor--------------------------->//
+/*
+ * Envia La lista de canciones
+ */
+int enviaListaCanciones(Canciones *inicio, int SocketConneccion){
+	Canciones *aux;
+	int canEnviadas = 0;
+
+	aux = inicio;
+	while(aux != NULL){
+		//Escritura del socket
+		write (SocketConneccion, aux->nombre, sizeof(aux->nombre));
+		aux = aux->sig;
+		canEnviadas ++;
+	}
+	return canEnviadas;
+}
+int enviaCancion(Canciones *inicio,int SocketConneccion, char* nombre){
+	Canciones *aux;
+	FILE *ap;
+	aux = inicio;
+
+	while(aux != NULL){
+		if (!strcmp(aux->nombre,nombre)){
+			ap = fopen(aux->nombre, "r");//Abre el archivo
+			write (SocketConneccion, ap, sizeof(ap));//Envia el Archivo
+			return True;
+		}
+		aux = aux->sig;
+	}
+	return -1;
+}
 /*
  * Inicia Servidor
  */
 int iniciaServidor(Canciones *inicio){
 	int SocketDescriptor, escuchador;
-	printf("Abriendo Socket..");
+	printf("Abriendo Socket...\n");
 	if ((SocketDescriptor = OpenScoketINET()) == -1){
 		printf("Error en el escuchador\n");
 		exit(EXIT_FAILURE);
 	}
 
-	printf("Descriptor: %d \n",SocketDescriptor);
-	esperar();
-	printf("Inciando esuchadores");
+	printf("Socket Descriptor: %d \n",SocketDescriptor);
+	printf("Inciando esuchadores...\n");
 	escuchador = escucharPeticones(SocketDescriptor,5);
 	if (escuchador == -1){
 		printf("No se puede escuchar por el puerto\n");
 		exit(EXIT_FAILURE);
 	}
-	
+
+	do{
+		int connections = acceptarConeccion(SocketDescriptor);
+		if (connections == -1){
+			printf("Peticion entrante con error...\n");
+		}else{//Acciones
+			printf("Atendiendo coneccion...\n");
+			printf("Enviando lista canciones...\n");
+			enviaListaCanciones( inicio,connections );
+			printf("Esperando respuesta...\n");
+			char respuesta[255];
+			read (connections, respuesta, 255);//Lee del socket
+			printf("Enviajo Archivo...\n");
+			if(enviaCancion( inicio, connections, respuesta) == -1)
+				printf("Error al enviar el archivo\n");
+			else
+				printf("Archivo enviado...\n");	
+		}
+		printf("Termiando coneccion...\n");
+		close (connections);
+	} while (True);
 }
