@@ -45,6 +45,7 @@ GtkWidget *window;
 int *estado;
 int semidFilosofos, semidMutex, semidMutexNotificaciones;
 int msqid, pipeNotificaciones[2];
+int visible;
 //
 //--------------------Prototipos de funiones--------------------------//
 //
@@ -69,7 +70,7 @@ void recibirCambio(int estado[N]);
 void *escucharNotificaciones(void *_);
 int aplicarCambios(gpointer datos);
 //<---------------------------------Señales-------------------------------------->//
-void signalFuncion(int signal);
+void signalFuncion(int _);
 
 
 
@@ -93,6 +94,7 @@ int main (int argc, char **argv) {
 	 * Señal SIGINT corresponde a ctrl c
 	 */
 	(void) signal(SIGINT, signalFuncion);
+	visible = 1;
 
 	estado = shmat(shmget(IPC_PRIVATE, sizeof(int) * N, IPC_CREAT | 0666), 0, 0);
 	for (i = 0; i < N; i++) {
@@ -378,7 +380,14 @@ int aplicarCambios(gpointer datos) {
 	return 0;
 }
 //<---------------------------------Señales-------------------------------------->//
-void signalFuncion(int signal){
-	printf("\n\n\nCambiando a Modo Grafico\n\n\n");
-	gtk_widget_show_all(window);
+void signalFuncion(int _){
+	if (visible == 1) {
+		printf("\n\n\nCambiando a Modo Grafico\n\n\n");
+    	gtk_widget_show_all(window);
+		visible = 0;
+  	} else {
+		printf("\n\n\nCambiando a Terminal\n\n\n");
+    	gtk_widget_hide(window);
+		visible = 1;
+  	}
 }
