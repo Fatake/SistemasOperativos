@@ -1,0 +1,3 @@
+#!/bin/sh
+gcc servidor.c -o ser
+gcc cliente.c -o cli

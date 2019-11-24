@@ -14,137 +14,126 @@
 #include <string.h>
 #include <time.h>
 #include <sys/time.h>
-#include "Utilerias.h"
+#include "utilerias.h"
+#include "socket.h"
+#include "lisligcan.h"
 
 
-int sd,op,r,ban1=1, ban2=1,ban3=1,ban4=1, ban5=1,var=5,res;
-char texto[255];
-struct sockaddr_in server_addr;
-struct hostent *hp;
-int num[1];
-char buff[255];
-
-void chat(){
-		do{
-			printf("Introduzca una palabra: ");
-			scanf("%s", texto);
-			r = send(sd, texto, strlen(texto),0);
-			var--;
-		}while(var!=0);	
-}
-
-void main(void){
-
+int main(int argc, char **argv){
+	Canciones *inicio,*final;
 	clock_t start = clock();
 	struct timeval 	tv;
 	struct tm* ptm;
+	struct sockaddr_in server_addr;
+	struct hostent *hp;
 	char time_string[40];
-	char time_string2[40];
+	char buff[255];
+	char nombreCancion[50];
+	int socketCliente;
+	int cantCanciones,i,op;
+	
+
+	inicio = final = NULL;
 	gettimeofday(&tv, NULL);
 	ptm = localtime(&tv.tv_sec);
 	strftime(time_string, sizeof(time_string), "%d/%m /%Y  %H:%M:%S" , ptm);
 	
-	while(1){
+	limpia();
+	while(True){
 		
-		sd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		socketCliente = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		bzero((char *)&server_addr, sizeof(server_addr));
-		hp = gethostbyname ("127.0.0.1");
+		//Borra la memoria de server
+		hp = gethostbyname (DIRECION);
 		memcpy (&(server_addr.sin_addr), hp->h_addr, hp->h_length);
 		server_addr.sin_family = AF_INET;
-		server_addr.sin_port = 7200;
+		server_addr.sin_port = PUERTO;
 
 		printf("\nElija una opcion\n");
-		printf(" 1. Listar los archivos del servidor\n ");
-		printf("2. Copiar un archivo del servidor\n");
-		printf(" 3. Enviar un archivo al servidor\n ");
-		printf("4. Enviar una cadena al servidor\n");
-		printf(" 5. Desconectar al servidor\n ");
-		printf("6. Mostrar las estadisticas de la conexión\n");
+		printf("1) Optener Canciones\n");
+		printf("2) Descargar una cancion\n");
+		printf("3) Enviar un archivo al servidor\n");
+		printf("4) Reproducir\n");
+		printf("5) Mostrar las estadisticas de la conexión\n");
 		printf("<-------------------------------------->\n");
-		printf(" 0. Salir\n-> ");
+		printf("0) Salir u.u\n-> ");
 		scanf("%d",&op);
 		limpia();
-
+		if (op == 0)
+			break;
+		
+		
 		switch(op){ 
-			case 1:
-				connect(sd, (struct sockaddr *) &server_addr,sizeof(server_addr));
-				num[0]=1;
-				write(sd, (char *) num, 1*sizeof(int));
-				ban1=0;
+			case 1://Optiene canciones del servidor
+				connect(socketCliente, 
+					(struct sockaddr *) &server_addr,
+					sizeof(server_addr));
+				read(socketCliente, buff, 255);
+				printf("Numero de canciones en Servidor: %s\n",buff);
+				cantCanciones = atoi(buff);
+				for ( i = 0; i < cantCanciones; i++){
+					read(socketCliente, buff, 255);
+					printf("Recibiendo cancion: %s\n",buff);
+					agregaCanciones(&inicio,&final,buff);	
+				}
 			break;
 				
-			case 2:
-				connect(sd, (struct sockaddr *) &server_addr,sizeof(server_addr));
-				num[0]=2;
-				write(sd, (char *) num, 1*sizeof(int));
-				printf("Se copiara el archivo himno");
-                FILE *ap;
-                  read(sd, buff, 255);
-				  ap = fopen("Himno.l", "w");
-				  printf("%s",buff);
-				  fprintf(ap, "%s", buff);
-				  fclose(ap);
-				ban2=0;
+			case 2://Descargar cancion
+				limpia();
+				if (inicio == NULL)
+				{
+					printf("NO se han recibido canciones del servidor\n");
+					break;
+				}
+				
+				do{
+					muestraCanciones(inicio);
+					printf("Ingrese el nombre de una cancion\n-> ");
+					scanf("%s",nombreCancion);
+					limpia();
+					if(checaExistenciaCancion(inicio,nombreCancion) == 1){
+						break;
+					}else{
+						printf("Cancion invalida\n");
+					}
+					
+				} while (True);
+				printf("Enviado cancion %s\n",nombreCancion);
+				printf("a.a.a.a");
+				printf("\n");
+				write(socketCliente, nombreCancion, sizeof(nombreCancion));
+				//Se sale???
+				printf("Esperando descarga...\n");
+                /*
+				FILE *ap;
+				ap = fopen("Himno.l", "w");
+				printf("%s",buff);
+				fprintf(ap, "%s", buff);
+				fclose(ap);
+				*/
 			break;
 
+			/*
 			case 3:
-				connect(sd, (struct sockaddr *) &server_addr,sizeof(server_addr));
-				num[0]=3;
-				write(sd, (char *) num, 1*sizeof(int));
-				printf("Se enviara el archivo cuento.l");
-				  write(sd, "Habia una vez...", 21);
-                  read(sd, buff, 9);
-                  printf("%s", buff);
-					printf("envio exitoso\n");
-				ban3=0;
+				
 			break;
 			
 			case 4:	
-				connect(sd, (struct sockaddr *) &server_addr,sizeof(server_addr));
-				num[0]=4;
-				write(sd, (char *) num, 1*sizeof(int)); 
-				chat();
-				ban4=0;
-			break;
-		    case 5: 
-				connect(sd, (struct sockaddr *) &server_addr,sizeof(server_addr));
-				num[0]=5;
-				write(sd, (char *) num, 1*sizeof(int));
-				read(sd, &time_string2, 40); 
-				printf("%s \n ", time_string2);
-				ban5=0;
-			break;
+				
+			break;*/
 			
-			case 6: 
+			case 5: 
 				printf("La hora en que se conecto el servidor fue: \n");
 				printf("%s \n ", time_string);
 				printf("\nTiempo transcurrido: %f segundos. \n", ((double)clock() - start) / CLOCKS_PER_SEC);
-				printf("Operaciones realizadas hasta el momento:\n");
-				if(ban1 == 0)
-					printf("\nEl servidor listo sus archivos.\n");
-				if(ban2 == 0)
-					printf("Se copio un archivo del servidor.\n ");
-				if(ban3 == 0)
-					printf("Se envio un archivo al servidor.\n");
-				if(ban4 == 0)
-					printf("Se envi­o mensajes al servidor.\n ");
-				if(ban5 == 0)
-					printf("Se mostro la hora de salida del servidor y procecededio a desconectarse.\n ");
-				printf("Se mostraron las estadisticas.\n");
-			break;
-			
-			case 0:
-				exit(0);
 			break;
 
-			dafault:
+			default:
 				printf("Opcion invalida");
 			break;
 
-
+		}
 	}
-
-	close (sd);
-	}
-exit(0);
+	close (socketCliente);//Cierra coneccion con el servidor
+	return 0;
 }

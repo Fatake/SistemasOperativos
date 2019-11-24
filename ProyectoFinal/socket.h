@@ -1,3 +1,6 @@
+#ifndef _socket_H_
+#define _socket_H_
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -10,6 +13,7 @@
 
 //Constantes
 #define PUERTO 7200
+#define DIRECION "127.0.0.1"
 
 /*
  * Lee datos del socket. 
@@ -291,6 +295,7 @@ int escucharPeticones( int SocketDescriptor, int cantidad){
  * * -1 si hay problemas.
  * Esta funcion vale para socket AF_INET o AF_UNIX.
  */
+/*
 int aceptarPeticion (int SocketDescriptor){
 	struct sockaddr_storage clienteNuevo;
 	unsigned int addres_size = sizeof(clienteNuevo);
@@ -303,7 +308,7 @@ int aceptarPeticion (int SocketDescriptor){
 	}
 	return coneccion;
 	//close(coneccion);
-}
+}*/
 
 /*
  * Accepta una coneccion a un Socket
@@ -327,3 +332,5 @@ int acceptarConeccion (int socketDescriptor){
 
 	return coneccion;
 }
+
+#endif //Libreria de sockets

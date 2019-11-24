@@ -1,3 +1,6 @@
+#ifndef _utilerias_H_
+#define _utilerias_H_
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -21,3 +24,5 @@ void esperar() {
 	scanf("%*c");
 	printf("\n");
 }
+
+#endif //Libreria de utilerias en c
