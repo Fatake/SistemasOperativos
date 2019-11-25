@@ -32,15 +32,16 @@ int main(int argc, char **argv){
 	char nombreCancion[50];
 	int socketCliente;
 	int cantCanciones,i,op;
-	
+	size_t byte;
+	FILE *nuevaCancionArchivo;
 
 	dinicio = dfinal = inicio = final = NULL;
 	gettimeofday(&tv, NULL);
 	ptm = localtime(&tv.tv_sec);
 	strftime(time_string, sizeof(time_string), "%d/%m /%Y  %H:%M:%S" , ptm);
+	//coneccion a sochet
 	socketCliente = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	bzero((char *)&server_addr, sizeof(server_addr));
-	//Borra la memoria de server
 	hp = gethostbyname (DIRECION);
 	memcpy (&(server_addr.sin_addr), hp->h_addr, hp->h_length);
 	server_addr.sin_family = AF_INET;
@@ -96,31 +97,38 @@ int main(int argc, char **argv){
 					
 				} while (True);
 				printf("Enviado cancion %s\n",nombreCancion);
-				printf("a.a.a.a");
-				printf("\n");
 				write(socketCliente, nombreCancion, sizeof(nombreCancion));
-				//Se sale???
-				printf("Esperando descarga...\n");
-				agregaCanciones(&dinicio,&dfinal,nombreCancion);
+				//Descargando
+				
 				printf("Descargando.....\n");
+				nuevaCancionArchivo = fopen(nombreCancion, "a");
+
+				do{
+					read(socketCliente, byte, sizeof(size_t));
+					fwrite(&byte, sizeof(byte), 1, nuevaCancionArchivo);
+					printf("%d bytes...\n",byte);
+				}while (feof(nuevaCancionArchivo) == 0);
+				fclose( nuevaCancionArchivo );
+				agregaCanciones(&dinicio,&dfinal,nombreCancion);
 				printf("Cancion descargada: %s",nombreCancion);
-                /*
-				FILE *ap;
-				ap = fopen("Himno.l", "w");
-				printf("%s",buff);
-				fprintf(ap, "%s", buff);
-				fclose(ap);
-				*/
+
 			break;
 
 			case 3:	
 				limpia();
 				if(dinicio != NULL){
-					muestraCanciones(dinicio);
-					printf("\n<---------------------->\n");
-					printf("Escriba nombre de cancion a reproducir:\n");
-					printf("\n-> ");
-					scanf("%s",nombreCancion);
+					do{
+						muestraCanciones(dinicio);
+						printf("Ingrese el nombre de una cancion\n-> ");
+						scanf("%s",nombreCancion);
+						limpia();
+						if(checaExistenciaCancion(dinicio,nombreCancion) == 1){
+							break;
+						}else{
+							printf("Cancion invalida\n");
+						}
+					} while (True);
+					//Reproduce a cancion
 					execlp("padsp","padsp","./rep",nombreCancion,NULL);
 				}else 
 					printf("No a agregado canciones :(\n");

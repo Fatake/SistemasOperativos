@@ -114,7 +114,6 @@ int leeCancionesDirectorio(Canciones **inicio, Canciones **final){
 int enviaListaCanciones(Canciones *inicio, int SocketConneccion){
 	Canciones *aux;
 	int canEnviadas = 0;
-	//int cantCanciones = cantidadCanciones(inicio);
 	char BUFF [255];
 	aux = inicio;
 
@@ -128,7 +127,7 @@ int enviaListaCanciones(Canciones *inicio, int SocketConneccion){
 		printf("Enviado cancion: %s\n",aux->nombre);
 		aux = aux->sig;
 		canEnviadas ++;
-		sleep(2);
+		sleep(1);
 	}
 	return canEnviadas;
 }
@@ -166,8 +165,7 @@ int enviaCancion(Canciones *inicio,int SocketConneccion, char* nombre){
 		write(SocketConneccion, byte, sizeof(size_t));
 		//tamArchivo ++;
  	}
-	//write(SocketConneccion, tamArchivo, sizeof(tamArchivo));//Envia el tamañio de la cancion
-	//write (SocketConneccion, apuntadorArchivo, sizeof(apuntadorArchivo));//Envia la cancion
+	
 	fclose(apuntadorArchivo);
 	return 1;
 }
