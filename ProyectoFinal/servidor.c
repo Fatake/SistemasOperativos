@@ -26,14 +26,7 @@ int connections;
 //<------------------------------------Prototipos-------------------------------->//
 //
 int menu();
-Canciones *nele();
-int agregaCanciones(Canciones **inicio,Canciones **final, char* nombre);
-int muestraCanciones(Canciones *inicio);
-int borraCancion(Canciones **inicio,Canciones **final, char* cancion);
 int leeCancionesDirectorio(Canciones **inicio, Canciones **final);
-
-
-
 int iniciaServidor(Canciones *inicio);
 int enviaListaCanciones(Canciones *inicio, int SocketConneccion);
 int enviaCancion(Canciones *inicio,int SocketConneccion, char* nombre);
@@ -145,18 +138,37 @@ int enviaListaCanciones(Canciones *inicio, int SocketConneccion){
  */
 int enviaCancion(Canciones *inicio,int SocketConneccion, char* nombre){
 	Canciones *aux;
-	FILE *ap;
+	size_t byte;
+	int tamArchivo = 0;
+	FILE *apuntadorArchivo;
 	aux = inicio;
 
 	while(aux != NULL){
-		if (!strcmp(aux->nombre,nombre)){
-			ap = fopen(aux->nombre, "r");//Abre el archivo
-			write (SocketConneccion, ap, sizeof(ap));//Envia el Archivo
-			return True;
-		}
+		if (!strcmp(aux->nombre,nombre))			
+			break;
+			/*
+			 * Encuentra la cancion y deja el apuntador en
+			 * la picicion de la lista
+			 * y sale del ciclo
+			 */
 		aux = aux->sig;
 	}
-	return -1;
+	apuntadorArchivo = fopen(aux->nombre, "r");//Abre el archivo
+	if (apuntadorArchivo == NULL) {
+		fputs ("File error",stderr); 
+		fclose(apuntadorArchivo);
+		exit (EXIT_FAILURE);
+	}
+	while (feof(apuntadorArchivo) == 0){
+		fread(&byte, 1, 1, apuntadorArchivo);
+		tamArchivo ++;
+ 	}
+	write(SocketConneccion, tamArchivo, sizeof(tamArchivo));//Envia el tamañio de la cancion
+	write (SocketConneccion, apuntadorArchivo, sizeof(apuntadorArchivo));//Envia la cancion
+	fclose(apuntadorArchivo);
+	if ( aux == NULL)	
+		return -1;
+	return 1;
 }
 
 /*

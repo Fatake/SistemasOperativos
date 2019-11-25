@@ -384,7 +384,7 @@ void signalFuncion(int _){
 	if (visible == 1) {
 		printf("\n\n\nCambiando a Modo Grafico\n\n\n");
     	gtk_widget_show_all(window);
-		visible = 0;
+		visible = 1;
   	} else {
 		printf("\n\n\nCambiando a Terminal\n\n\n");
     	gtk_widget_hide(window);

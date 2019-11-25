@@ -21,6 +21,7 @@
 
 int main(int argc, char **argv){
 	Canciones *inicio,*final;
+	Canciones *dinicio,*dfinal;//Estas variables son para la LL de las canciones descargadas
 	clock_t start = clock();
 	struct timeval 	tv;
 	struct tm* ptm;
@@ -33,29 +34,28 @@ int main(int argc, char **argv){
 	int cantCanciones,i,op;
 	
 
-	inicio = final = NULL;
+	dinicio = dfinal = inicio = final = NULL;
 	gettimeofday(&tv, NULL);
 	ptm = localtime(&tv.tv_sec);
 	strftime(time_string, sizeof(time_string), "%d/%m /%Y  %H:%M:%S" , ptm);
-	
+	socketCliente = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	bzero((char *)&server_addr, sizeof(server_addr));
+	//Borra la memoria de server
+	hp = gethostbyname (DIRECION);
+	memcpy (&(server_addr.sin_addr), hp->h_addr, hp->h_length);
+	server_addr.sin_family = AF_INET;
+	server_addr.sin_port = PUERTO;
+
 	limpia();
 	while(True){
-		
-		socketCliente = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-		bzero((char *)&server_addr, sizeof(server_addr));
-		//Borra la memoria de server
-		hp = gethostbyname (DIRECION);
-		memcpy (&(server_addr.sin_addr), hp->h_addr, hp->h_length);
-		server_addr.sin_family = AF_INET;
-		server_addr.sin_port = PUERTO;
-
 		printf("\nElija una opcion\n");
 		printf("1) Optener Canciones\n");
 		printf("2) Descargar una cancion\n");
 		printf("3) Enviar un archivo al servidor\n");
 		printf("4) Reproducir\n");
 		printf("5) Mostrar las estadisticas de la conexión\n");
-		printf("<-------------------------------------->\n");
+		printf("6) Mostar Canciones decargadas\n");
+		printf("\n<-------------------------------------->\n");
 		printf("0) Salir u.u\n-> ");
 		scanf("%d",&op);
 		limpia();
@@ -80,8 +80,7 @@ int main(int argc, char **argv){
 				
 			case 2://Descargar cancion
 				limpia();
-				if (inicio == NULL)
-				{
+				if (inicio == NULL){
 					printf("NO se han recibido canciones del servidor\n");
 					break;
 				}
@@ -104,6 +103,9 @@ int main(int argc, char **argv){
 				write(socketCliente, nombreCancion, sizeof(nombreCancion));
 				//Se sale???
 				printf("Esperando descarga...\n");
+				agregaCanciones(&dinicio,&dfinal,nombreCancion);
+				printf("Descargando.....\n");
+				printf("Cancion descargada: %s",nombreCancion);
                 /*
 				FILE *ap;
 				ap = fopen("Himno.l", "w");
@@ -117,15 +119,40 @@ int main(int argc, char **argv){
 			case 3:
 				
 			break;
-			
+			*/
 			case 4:	
-				
-			break;*/
+				//nombreCancion=NULL;
+				do{
+				printf("Ingrese el nombre de la cancion descargada a reproducir:\n");
+				scanf("%s",nombreCancion);
+				printf("Validando existencia de cancion.........\n");
+				checaExistenciaCancion(dinicio,nombreCancion);
+				if(checaExistenciaCancion(inicio,nombreCancion) == 1){
+						break;
+					}else{
+						printf("Cancion no descargada\n");
+					}
+				}
+				while (True);
+				printf("Reproduciendo cancion.......\n");
+				/*
+				 * 
+				 * 
+				 * Aqui pues se debe de meter el codigo para que ejecute
+				 * el reproductor con la rola
+				 * 
+				 * PD: NO MMS ME PUSE ANAL Y YA COMPRENDI QUE PEDO
+				 * */
+			break;
 			
 			case 5: 
 				printf("La hora en que se conecto el servidor fue: \n");
 				printf("%s \n ", time_string);
 				printf("\nTiempo transcurrido: %f segundos. \n", ((double)clock() - start) / CLOCKS_PER_SEC);
+			break;
+
+			case 6:
+				muestraCanciones(dinicio);//MUESTRA CANCIONES DESCARGADAS
 			break;
 
 			default:
