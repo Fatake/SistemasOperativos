@@ -153,6 +153,8 @@ int enviaCancion(Canciones *inicio,int SocketConneccion, char* nombre){
 			 */
 		aux = aux->sig;
 	}
+	if ( aux == NULL)	
+		return -1;
 	apuntadorArchivo = fopen(aux->nombre, "r");//Abre el archivo
 	if (apuntadorArchivo == NULL) {
 		fputs ("File error",stderr); 
@@ -160,14 +162,13 @@ int enviaCancion(Canciones *inicio,int SocketConneccion, char* nombre){
 		exit (EXIT_FAILURE);
 	}
 	while (feof(apuntadorArchivo) == 0){
-		fread(&byte, 1, 1, apuntadorArchivo);
-		tamArchivo ++;
+		fread(&byte, sizeof(size_t), 1, apuntadorArchivo);
+		write(SocketConneccion, byte, sizeof(size_t));
+		//tamArchivo ++;
  	}
-	write(SocketConneccion, tamArchivo, sizeof(tamArchivo));//Envia el tamañio de la cancion
-	write (SocketConneccion, apuntadorArchivo, sizeof(apuntadorArchivo));//Envia la cancion
+	//write(SocketConneccion, tamArchivo, sizeof(tamArchivo));//Envia el tamañio de la cancion
+	//write (SocketConneccion, apuntadorArchivo, sizeof(apuntadorArchivo));//Envia la cancion
 	fclose(apuntadorArchivo);
-	if ( aux == NULL)	
-		return -1;
 	return 1;
 }
 

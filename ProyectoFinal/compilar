@@ -1,3 +1,4 @@
 #!/bin/sh
 gcc servidor.c -o ser
 gcc cliente.c -o cli
+gcc reproductor.c -o rep

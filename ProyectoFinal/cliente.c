@@ -48,13 +48,11 @@ int main(int argc, char **argv){
 
 	limpia();
 	while(True){
-		printf("\nElija una opcion\n");
-		printf("1) Optener Canciones\n");
+		printf("\n\nElija una opcion\n");
+		printf("1) Obtener Canciones\n");
 		printf("2) Descargar una cancion\n");
-		printf("3) Enviar un archivo al servidor\n");
-		printf("4) Reproducir\n");
-		printf("5) Mostrar las estadisticas de la conexión\n");
-		printf("6) Mostar Canciones decargadas\n");
+		printf("3) Reproducir\n");
+		printf("4) Mostrar las estadisticas de la conexión\n");
 		printf("\n<-------------------------------------->\n");
 		printf("0) Salir u.u\n-> ");
 		scanf("%d",&op);
@@ -115,44 +113,23 @@ int main(int argc, char **argv){
 				*/
 			break;
 
-			/*
-			case 3:
-				
-			break;
-			*/
-			case 4:	
-				//nombreCancion=NULL;
-				do{
-				printf("Ingrese el nombre de la cancion descargada a reproducir:\n");
-				scanf("%s",nombreCancion);
-				printf("Validando existencia de cancion.........\n");
-				checaExistenciaCancion(dinicio,nombreCancion);
-				if(checaExistenciaCancion(inicio,nombreCancion) == 1){
-						break;
-					}else{
-						printf("Cancion no descargada\n");
-					}
-				}
-				while (True);
-				printf("Reproduciendo cancion.......\n");
-				/*
-				 * 
-				 * 
-				 * Aqui pues se debe de meter el codigo para que ejecute
-				 * el reproductor con la rola
-				 * 
-				 * PD: NO MMS ME PUSE ANAL Y YA COMPRENDI QUE PEDO
-				 * */
+			case 3:	
+				limpia();
+				if(dinicio != NULL){
+					muestraCanciones(dinicio);
+					printf("\n<---------------------->\n");
+					printf("Escriba nombre de cancion a reproducir:\n");
+					printf("\n-> ");
+					scanf("%s",nombreCancion);
+					execlp("padsp","padsp","./rep",nombreCancion,NULL);
+				}else 
+					printf("No a agregado canciones :(\n");
 			break;
 			
-			case 5: 
+			case 4: 
 				printf("La hora en que se conecto el servidor fue: \n");
 				printf("%s \n ", time_string);
 				printf("\nTiempo transcurrido: %f segundos. \n", ((double)clock() - start) / CLOCKS_PER_SEC);
-			break;
-
-			case 6:
-				muestraCanciones(dinicio);//MUESTRA CANCIONES DESCARGADAS
 			break;
 
 			default:
