@@ -17,8 +17,11 @@
 #include "utilerias.h"
 #include "socket.h"
 #include "lisligcan.h"
-
-
+//Prototipos
+void recibirArchivo(int SocketFD, FILE *file, char* nombre);
+/*
+ * Main Cliente
+ */
 int main(int argc, char **argv){
 	Canciones *inicio,*final;
 	Canciones *dinicio,*dfinal;//Estas variables son para la LL de las canciones descargadas
@@ -83,7 +86,7 @@ int main(int argc, char **argv){
 					printf("NO se han recibido canciones del servidor\n");
 					break;
 				}
-				
+				//Descarga cancion
 				do{
 					muestraCanciones(inicio);
 					printf("Ingrese el nombre de una cancion\n-> ");
@@ -99,16 +102,8 @@ int main(int argc, char **argv){
 				printf("Enviado cancion %s\n",nombreCancion);
 				write(socketCliente, nombreCancion, sizeof(nombreCancion));
 				//Descargando
-				
 				printf("Descargando.....\n");
-				nuevaCancionArchivo = fopen(nombreCancion, "a");
-
-				do{
-					read(socketCliente, byte, sizeof(size_t));
-					fwrite(&byte, sizeof(byte), 1, nuevaCancionArchivo);
-					printf("%d bytes...\n",byte);
-				}while (feof(nuevaCancionArchivo) == 0);
-				fclose( nuevaCancionArchivo );
+				recibirArchivo(socketCliente, nuevaCancionArchivo, nombreCancion);
 				agregaCanciones(&dinicio,&dfinal,nombreCancion);
 				printf("Cancion descargada: %s",nombreCancion);
 
@@ -148,4 +143,24 @@ int main(int argc, char **argv){
 	}
 	close (socketCliente);//Cierra coneccion con el servidor
 	return 0;
+}
+
+void recibirArchivo(int SocketFD, FILE *file, char* nombre){
+	char buffer[BUFFSIZE];
+	int byts = 0;
+	char h[1] ;
+	int recibido = -1;
+
+	/*Se abre el archivo para escritura*/
+	file = fopen(nombre,"wb");
+	while(True){
+		if((recibido = recv(SocketFD, buffer, BUFFSIZE, 0) ) <= 0){
+			break;
+		}
+		fwrite( buffer, sizeof(char), 1, file);
+	}//Termina la recepción del archivo
+	limpia();
+	printf("%d bytes descargados n.n\n",byts);
+	fclose(file);
+	read(SocketFD, h, sizeof(h));
 }

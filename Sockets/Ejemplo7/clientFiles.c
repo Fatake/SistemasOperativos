@@ -1,12 +1,3 @@
-/*
-* Author: Pablo Camarillo Ramírez.
-* Fecha/Date: 28 de Septiembre de 2010/September 28th 2010.
-* Redes de Computadora / Computer networks.
-* Description: 	This application contains the client functionality
-* 		to send/receive files through C-like sockets by using
-*		TCP/UDP packages.
-*/
- 
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>

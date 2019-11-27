@@ -12,6 +12,7 @@
 #include <errno.h>
 
 //Constantes
+#define BUFFSIZE 1
 #define PUERTO 7200
 #define DIRECION "127.0.0.1"
 
