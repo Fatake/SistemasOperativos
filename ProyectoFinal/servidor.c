@@ -138,37 +138,50 @@ int enviaListaCanciones(Canciones *inicio, int SocketConneccion){
 int enviaCancion(Canciones *inicio,int SocketConneccion, char* nombre){
 	Canciones *aux;
 	char buffer[BUFFSIZE];
+	char BUFF [255];
+	int tamanio = 0;
 	FILE *apuntadorArchivo;
 	aux = inicio;
 
 	while(aux != NULL){
 		if (!strcmp(aux->nombre,nombre))			
 			break;
-			/*
-			 * Encuentra la cancion y deja el apuntador en
-			 * la picicion de la lista
-			 * y sale del ciclo
-			 */
 		aux = aux->sig;
 	}
 	if ( aux == NULL)	
 		return -1;
+
 	apuntadorArchivo = fopen(aux->nombre, "rb");//Abre el archivo binario
 	if (apuntadorArchivo == NULL) {//Si hay error al abrir archivos
 		fputs ("File error",stderr); 
 		fclose(apuntadorArchivo);
 		exit (EXIT_FAILURE);
 	}
+	/*Se envia el archivo*/
+	while(!feof(apuntadorArchivo)){
+		fread( buffer, sizeof(char), BUFFSIZE, apuntadorArchivo);
+		tamanio++;
+	}
 
+	sprintf(BUFF, "%d", tamanio); 
+	printf("Tamaño del archivo %s\n",BUFF);
+	write (SocketConneccion, BUFF, sizeof(BUFF));
+	fclose(apuntadorArchivo);
+	apuntadorArchivo = fopen(aux->nombre, "rb");//Abre el archivo binario
+	if (apuntadorArchivo == NULL) {//Si hay error al abrir archivos
+		fputs ("File error",stderr); 
+		fclose(apuntadorArchivo);
+		exit (EXIT_FAILURE);
+	}
+	printf("Enviando...\n");
 	/*Se envia el archivo*/
 	while(!feof(apuntadorArchivo)){
 		fread( buffer, sizeof(char), BUFFSIZE, apuntadorArchivo);
 		if(send( SocketConneccion, buffer, BUFFSIZE, 0) == -1)
 			perror("Error al enviar el archivo:");
 	}
+	
 	fclose(apuntadorArchivo);
-	sleep(1);
-	write (SocketConneccion, "h", sizeof("h"));
 	return 1;
 }
 
@@ -207,7 +220,7 @@ int iniciaServidor(Canciones *inicio){
 				printf("Esperando respuesta...\n");
 				while(read (connections, respuesta, sizeof(respuesta)) <= 0);
 				//Lee del socket
-				printf("Enviando Archivo...\n");
+				printf("Archivo %s...\n",respuesta);
 				if(enviaCancion( inicio, connections, respuesta) == -1)
 					printf("Error al enviar el archivo\n");
 				else

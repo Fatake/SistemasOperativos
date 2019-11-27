@@ -23,6 +23,7 @@ void recibirArchivo(int SocketFD, FILE *file, char* nombre);
  * Main Cliente
  */
 int main(int argc, char **argv){
+	int pid;
 	Canciones *inicio,*final;
 	Canciones *dinicio,*dfinal;//Estas variables son para la LL de las canciones descargadas
 	clock_t start = clock();
@@ -105,7 +106,6 @@ int main(int argc, char **argv){
 				printf("Descargando.....\n");
 				recibirArchivo(socketCliente, nuevaCancionArchivo, nombreCancion);
 				agregaCanciones(&dinicio,&dfinal,nombreCancion);
-				printf("Cancion descargada: %s",nombreCancion);
 
 			break;
 
@@ -124,7 +124,12 @@ int main(int argc, char **argv){
 						}
 					} while (True);
 					//Reproduce a cancion
-					execlp("padsp","padsp","./rep",nombreCancion,NULL);
+					pid=fork();
+					if(pid==0){
+						execlp("padsp","padsp","./rep",nombreCancion,NULL);
+						exit(EXIT_SUCCESS);
+					}
+					
 				}else 
 					printf("No a agregado canciones :(\n");
 			break;
@@ -147,20 +152,30 @@ int main(int argc, char **argv){
 
 void recibirArchivo(int SocketFD, FILE *file, char* nombre){
 	char buffer[BUFFSIZE];
+	char BUFF[255];
 	int byts = 0;
+	int tamanio;
+	int i;
 	char h[1] ;
 	int recibido = -1;
-
+	
+	read(SocketFD, BUFF, sizeof(BUFF));//Tamaño de la cancion
+	tamanio = atoi(BUFF);
+	printf("Tamaño del archivo %d\n",tamanio);
 	/*Se abre el archivo para escritura*/
 	file = fopen(nombre,"wb");
-	while(True){
-		if((recibido = recv(SocketFD, buffer, BUFFSIZE, 0) ) <= 0){
+	printf("Descargando...\n");
+	for(i = 0; i < tamanio; i++){
+		recibido = recv(SocketFD, buffer, BUFFSIZE, 0) ;
+		if(recibido <= 0){
+			printf("Salio\n");
 			break;
 		}
 		fwrite( buffer, sizeof(char), 1, file);
+		buffer[0] = '\0';
+		
 	}//Termina la recepción del archivo
 	limpia();
-	printf("%d bytes descargados n.n\n",byts);
+	printf("Cancion %s con peso de %d, descargada n.n\n",nombre,tamanio);
 	fclose(file);
-	read(SocketFD, h, sizeof(h));
 }
